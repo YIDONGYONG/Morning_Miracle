@@ -1,0 +1,57 @@
+version: '3'
+
+services:
+  db:
+    image: postgres:15
+    environment:
+      TZ: Asia/Tokyo
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5434:5432"
+
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+  web:
+    build: .
+    # 컨테이너만 백그라운드로 켜두어 terminal 2에서 bin/dev 중복 충돌이 안 나도록 수정
+    command: tail -f /dev/null
+    tty: true
+    stdin_open: true
+    volumes:
+      - .:/app:delegated
+      - bundle_data:/usr/local/bundle:cached
+      - node_modules:/app/node_modules:cached
+      - /app/vendor
+      - /app/tmp
+      - /app/log
+      - /app/.git
+    environment:
+      TZ: Asia/Tokyo
+      POSTGRES_PASSWORD: password
+      SELENIUM_DRIVER_URL: http://chrome:4444/wd/hub
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+      - redis
+      - chrome
+
+  chrome:
+    image: seleniarm/standalone-chromium:latest
+    shm_size: 512m
+    ports:
+      - "4444:4444"
+
+volumes:
+  postgres_data:
+  redis_data:
+  bundle_data:
+  node_modules:

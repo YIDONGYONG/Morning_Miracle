@@ -35,11 +35,10 @@ gem "bootsnap", require: false
 # gem "image_processing", "~> 1.2"
 # gem "tailwindcss-rails"
 # Gemfile
-gem 'bootstrap-icons'
 gem "devise"
 gem "sassc-rails"
-gem "bootstrap", "~> 5.3.3"
 gem "bcrypt"
+gem "lucide-rails"
 
 group :development, :test do
     # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
@@ -68,3 +67,5 @@ group :test do
   gem "capybara"
   gem "selenium-webdriver"
 end
+
+gem "tailwindcss-rails", "~> 4.6"

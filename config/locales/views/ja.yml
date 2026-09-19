@@ -1,4 +1,23 @@
 ja:
+  activerecord:
+    attributes:
+      user:
+        first_name: 名
+        last_name: 姓
+        email: メールアドレス
+        password: パスワード
+        password_confirmation: 確認用パスワード
+    errors:
+      models:
+        user:
+          attributes:
+            email:
+              taken: はすでに存在します
+              invalid: は不正な値です
+            password:
+              too_short: は%{count}文字以上で入力してください
+            password_confirmation:
+              confirmation: とパスワードの入力が一致しません
   helpers:
     submit:
       create: 登録

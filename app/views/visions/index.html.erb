@@ -1,0 +1,10 @@
+<h1>비전 목록</h1>
+
+<%= link_to "새 비전 만들기", new_vision_path %>
+
+<hr>
+
+<div id="visions">
+  <%# _vision.html.erb 파셜을 반복해서 렌더링합니다 %>
+  <%= render @visions %>
+</div>

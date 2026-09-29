@@ -1,0 +1,41 @@
+<%= form_with(model: vision, class: "space-y-6") do |form| %>
+
+    <%# 1. Error Notification Callout %>
+    <% if vision.errors.any? %>
+      <div class="p-4 rounded-2xl bg-rose-50 border border-rose-200/80 text-rose-900 space-y-2 animate-fade-in">
+        <div class="flex items-center gap-2 font-semibold text-sm text-rose-700">
+          <%= lucide_icon "alert-circle", class: "w-4 h-4 text-rose-500 shrink-0" %>
+          <span><%= vision.errors.count %>개의 오류로 인해 저장할 수 없습니다</span>
+        </div>
+        <ul class="list-disc list-inside text-xs text-rose-600 space-y-1 pl-1 font-medium">
+          <% vision.errors.each do |error| %>
+            <li><%= error.full_message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+  
+    <%# 2. Title Field %>
+    <div class="space-y-2">
+      <%= form.label :title, "제목", class: "block text-xs font-semibold uppercase tracking-wider text-slate-500 pl-1" %>
+      <%= form.text_field :title, 
+            placeholder: "비전의 제목을 입력하세요...", 
+            class: "w-full px-4 py-3 rounded-xl bg-slate-100/70 border border-slate-200/80 text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:bg-white focus:border-slate-400 focus:ring-2 focus:ring-slate-900/10 focus:outline-none transition-all shadow-sm" %>
+    </div>
+  
+    <%# 3. Content Field %>
+    <div class="space-y-2">
+      <%= form.label :content, "세부 내용", class: "block text-xs font-semibold uppercase tracking-wider text-slate-500 pl-1" %>
+      <%= form.text_area :content, 
+            rows: 4, 
+            placeholder: "이 비전에 대해 더 자세히 작성해보세요...", 
+            class: "w-full px-4 py-3 rounded-xl bg-slate-100/70 border border-slate-200/80 text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:bg-white focus:border-slate-400 focus:ring-2 focus:ring-slate-900/10 focus:outline-none transition-all shadow-sm resize-none" %>
+    </div>
+  
+    <%# 4. Action Button %>
+    <div class="pt-2">
+      <%= form.submit "저장하기", 
+            class: "w-full py-3.5 bg-slate-900 hover:bg-slate-800 active:scale-[0.98] text-white text-sm font-semibold rounded-xl shadow-sm hover:shadow transition-all cursor-pointer flex items-center justify-center gap-2" %>
+    </div>
+  
+  <% end %>

@@ -39,6 +39,7 @@ gem "devise"
 gem "sassc-rails"
 gem "bcrypt"
 gem "lucide-rails"
+gem 'active_hash'
 
 group :development, :test do
     # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem

@@ -1,0 +1,19 @@
+<%# モバイル用の下部タブ（ホーム / 目標 / ルーティン / ログアウト）。PC では非表示 %>
+<nav class="tabbar" aria-label="メインメニュー">
+  <%= link_to root_path, class: ["tab", ("tab-active" if current_page?(root_path))] do %>
+    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 3l9 8h-3v9h-5v-6h-2v6H6v-9H3z"/></svg>
+    <%= t("nav.home") %>
+  <% end %>
+  <%= link_to visions_path, class: ["tab", ("tab-active" if controller_name == "visions")] do %>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/></svg>
+    <%= t("nav.goals") %>
+  <% end %>
+  <%= link_to routines_path, class: ["tab", ("tab-active" if controller_name == "routines")] do %>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4h6v3H9zM9 12h6M9 16h4"/></svg>
+    <%= t("nav.routines") %>
+  <% end %>
+  <%= button_to logout_path, method: :delete, class: "tab", form: { class: "contents" } do %>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5V3h4M16 17l5-5-5-5M21 12H9"/></svg>
+    <%= t("nav.logout") %>
+  <% end %>
+</nav>

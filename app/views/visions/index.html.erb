@@ -1,10 +1,12 @@
-<h1>비전 목록</h1>
+<%# ビジョン一覧: 上部にカバー画像、下にカード一覧 %>
+<div class="page">
+  <%= render "visions/cover" %>
 
-<%= link_to "새 비전 만들기", new_vision_path %>
+  <main class="page-body -mt-10">
+    <%= link_to "新しいビジョンを作る", new_vision_path, class: "btn btn-primary mb-4 block shadow-card" %>
 
-<hr>
-
-<div id="visions">
-  <%# _vision.html.erb 파셜을 반복해서 렌더링합니다 %>
-  <%= render @visions %>
+    <div id="visions" class="card-grid">
+      <%= render @visions %>
+    </div>
+  </main>
 </div>

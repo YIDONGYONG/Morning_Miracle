@@ -1,22 +1,23 @@
-<div class="container">
-  <div class="row">
-    <div class="col-md-10 col-lg-8 mx-auto">
-      <h1><%= t(".title") %></h1>
-      <%= form_with url: login_path do |f| %>
-        <div class="mb-3">
-          <%= f.label :email, t("helpers.label.email"), class: "form-label" %>
-          <%= f.email_field :email, class: "form-control", value: params[:email] %>
-        </div>
-        <div class="mb-3">
-          <%= f.label :password, t("helpers.label.password"), class: "form-label" %>
-          <%= f.password_field :password, class: "form-control" %>
-        </div>
-        <%= f.submit t(".login"), class: "btn btn-primary" %>
-      <% end %>
-      <div class="text-center mt-3">
-        <%= link_to t(".to_register_page"), new_user_path %>
-        <%= link_to t(".password_forget"), "#" %>
+<%# ログイン画面 %>
+<div class="page">
+  <%= render "shared/hero", title: t(".title") %>
+
+  <main class="page-body max-w-md">
+    <%= form_with url: login_path, class: "card space-y-4" do |f| %>
+      <div>
+        <%= f.label :email, t("helpers.label.email"), class: "field-label" %>
+        <%= f.email_field :email, value: params[:email], autocomplete: "email", class: "field-input" %>
       </div>
-    </div>
-  </div>
+      <div>
+        <%= f.label :password, t("helpers.label.password"), class: "field-label" %>
+        <%= f.password_field :password, autocomplete: "current-password", class: "field-input" %>
+      </div>
+      <%= f.submit t(".login"), class: "btn btn-primary w-full" %>
+      <div class="flex flex-wrap justify-between gap-x-4 gap-y-1 text-xs">
+        <%= link_to t(".to_register_page"), new_user_path, class: "topnav-link" %>
+        <%# パスワード再設定機能は未実装のためリンクのみ（実装時に差し替え） %>
+        <%= link_to t(".password_forget"), "#", class: "topnav-link" %>
+      </div>
+    <% end %>
+  </main>
 </div>

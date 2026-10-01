@@ -1,4 +1,5 @@
 class User < ApplicationRecord
+  # パスワードの暗号化と認証
   has_secure_password
   has_many :visions
   has_many :routines

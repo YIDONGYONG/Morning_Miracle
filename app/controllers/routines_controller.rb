@@ -1,49 +1,56 @@
 class RoutinesController < ApplicationController
-    before_action :set_routine, only: %i[edit update]
+  before_action :set_routine, only: %i[complete miss]
 
-    def index
-        @routines = current_user.routines
-    end
+  # ルーティン一覧（未作成のカテゴリも取得して開始ボタンの表示に使う）
+  def index
+    @routines = current_user.routines.order(:category)
+    @missing_categories = Routine.categories.keys - @routines.map(&:category)
+  end
 
-    def show
-        @routines = Routines.find(params[:id])
+  # 4つのコアルーティンを Level 1 から一括で開始する
+  def create
+    Routine.categories.each_key do |category|
+      current_user.routines.find_or_create_by!(category: category)
     end
-    
-    def new
-        @routines = Routines.new
-    end
+    redirect_to routines_path, notice: "レベル1からスタートしました"
+  end
 
-    def create
-      @routine = current_user.routines.build(routine_params)
-      if @routine.save
-        redirect_to routines_path, notice: '루틴이 추가되었습니다.'
-      else
-        render :new, status: :unprocessable_entity
-      end
-    end
-    
-    def edit
-  # set_routine で @routine が既にセットされている
-    end
+  # 今日の「達成」を記録する
+  def complete
+    result = @routine.record_achieved!
+    redirect_to routines_path, notice: complete_message(result)
+  end
 
-    def update
-      if @routine.update(routine_params)
-       redirect_to routines_path, notice: '更新しました'
-     else
-       render :edit, status: :unprocessable_entity
-    end
-   end
-    private
-  
-    def set_routine
-      # 🔒 타인의 Routine ID를 URL에 주입해도 ActiveRecord::RecordNotFound (404) 발생
-      @routine = current_user.routines.find(params[:id])
-    end
-  
-    def routine_params
-      params.require(:routine).permit(:title, :category, :completed)
+  # 今日の「未達成」を記録する
+  def miss
+    result = @routine.record_missed!
+    redirect_to routines_path, notice: miss_message(result)
+  end
+
+  private
+
+  # 自分のルーティンだけを取得する（他人のIDは404）
+  def set_routine
+    @routine = current_user.routines.find(params[:id])
+  end
+
+  # 今日の「達成」を記録する
+  # 達成時のフラッシュメッセージ
+  def complete_message(result)
+    case result
+    when :promoted then "おめでとう！ レベル#{@routine.current_level}に昇格しました"
+    when :recorded then "達成を記録しました（連続 #{@routine.current_streak} 日）"
+    else "今日はすでに記録済みです"
     end
   end
 
-
-  
+  # 今日の「未達成」を記録する
+  # 未達成時のフラッシュメッセージ
+  def miss_message(result)
+    case result
+    when :demoted then "レベル#{@routine.current_level}に戻りました。小さな一歩からやり直しましょう"
+    when :recorded then "未達成を記録しました"
+    else "今日はすでに記録済みです"
+    end
+  end
+end

@@ -1,8 +1,10 @@
 class UserSessionsController < ApplicationController
   skip_before_action :require_login, only: %i[new create]
 
+  # ログイン画面
   def new; end
 
+  # ログイン処理（メールアドレスとパスワードで認証）
   def create
     user = User.find_by(email: params[:email])
 
@@ -15,6 +17,7 @@ class UserSessionsController < ApplicationController
     end
   end
 
+  # ログアウト処理
   def destroy
     logout
     redirect_to root_path, notice: t(".success"), status: :see_other

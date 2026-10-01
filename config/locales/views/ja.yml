@@ -26,14 +26,13 @@ ja:
     label:
       email: メールアドレス
       password: パスワード
-  header:
+  nav:
+    home: ホーム
+    goals: 目標
+    routines: ルーティン
     login: ログイン
+    register: ユーザー登録
     logout: ログアウト
-    board: 掲示板
-    board_index: 掲示板一覧
-    create_board: 掲示板作成
-    bookmark_index: ブックマーク一覧
-    profile: プロフィール
   user_sessions:
     new:
       title: ログイン

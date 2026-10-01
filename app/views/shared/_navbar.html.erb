@@ -1,0 +1,22 @@
+<%# 上部ナビ。ログイン時はモバイルで非表示（下部タブが代わりを担う） %>
+<header class="bg-card shadow-sm <%= 'hidden md:block' if logged_in? %>">
+  <nav class="mx-auto flex h-16 max-w-5xl items-center justify-between px-5 md:px-8">
+    <%= link_to root_path, aria: { label: "ホーム" } do %>
+      <%= image_tag "logo.png", alt: "Morning Miracle", class: "h-8 w-auto" %>
+    <% end %>
+
+    <div class="flex items-center gap-6">
+      <% if logged_in? %>
+        <%= link_to t("nav.home"), root_path, class: ["topnav-link", ("topnav-link-active" if current_page?(root_path))] %>
+        <%= link_to t("nav.goals"), visions_path, class: ["topnav-link", ("topnav-link-active" if controller_name == "visions")] %>
+        <%= link_to t("nav.routines"), routines_path, class: ["topnav-link", ("topnav-link-active" if controller_name == "routines")] %>
+        <span class="text-sm font-bold text-ink"><%= current_user_name %></span>
+        <%# DELETE を JS なしでも送れるよう button_to を使う %>
+        <%= button_to t("nav.logout"), logout_path, method: :delete, class: "btn btn-secondary !py-1.5" %>
+      <% else %>
+        <%= link_to t("nav.login"), login_path, class: "topnav-link" %>
+        <%= link_to t("nav.register"), new_user_path, class: "btn btn-primary !py-1.5" %>
+      <% end %>
+    </div>
+  </nav>
+</header>

@@ -1,10 +1,12 @@
 class UsersController < ApplicationController
   skip_before_action :require_login, only: %i[new create]
 
+  # ユーザー登録画面
   def new
     @user = User.new
   end
 
+  # ユーザー登録処理（成功したらそのままログイン）
   def create
     @user = User.new(user_params)
     if @user.save
@@ -18,6 +20,7 @@ class UsersController < ApplicationController
 
   private
 
+  # 許可するパラメータ
   def user_params
     params.require(:user).permit(:first_name, :last_name, :email, :password, :password_confirmation)
   end

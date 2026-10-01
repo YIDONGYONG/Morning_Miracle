@@ -1,22 +1,27 @@
 class ApplicationController < ActionController::Base
+  # 全コントローラ共通: ログイン判定とログイン必須の制御
   helper_method :logged_in?, :current_user
   before_action :require_login
 
+  # ログイン中かどうか
   def logged_in?
     !!current_user
   end
 
+  # セッションを破棄してログアウトする
   def logout
     session[:user_id] = nil
     @current_user = nil
   end
 
+  # ログイン中のユーザーを返す
   def current_user
     @current_user ||= User.find_by(id: session[:user_id]) if session[:user_id]
   end
 
   private
 
+  # 未ログインならログイン画面へ移動する
   def require_login
     redirect_to login_path unless logged_in?
   end

@@ -1,0 +1,7 @@
+<%# 画面上部のグラデーションヘッダー。locals: title(必須), lead(任意)。title は <br> を含められるので html_safe 済み文字列を渡す %>
+<header class="hero">
+  <div class="hero-inner">
+    <h1 class="hero-title"><%= title %></h1>
+    <% if local_assigns[:lead].present? %><p class="hero-lead"><%= lead %></p><% end %>
+  </div>
+</header>

@@ -1,9 +1,0 @@
-<div id="<%= dom_id(vision) %>" class="bg-slate-200/40 p-4 rounded-2xl flex items-center justify-between gap-4 border border-transparent">
-  <div class="flex items-center gap-4 min-w-0 flex-1">
-    <%= lucide_icon "check-circle-2", class: "w-[22px] h-[22px] text-slate-400 shrink-0", fill: "currentColor", stroke: "#f8fafc" %>
-    <p class="text-sm font-medium text-slate-500 line-through truncate"><%= vision.title %></p>
-  </div>
-  <span class="text-[11px] font-semibold bg-slate-200 text-slate-600 px-2 py-0.5 rounded-md shrink-0 tracking-wide">
-    <%= vision.tag || "Done" %>
-  </span>
-</div>

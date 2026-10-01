@@ -1,8 +1,8 @@
-<h1>새 비전 작성</h1>
-
-<%= render "form", vision: @vision %>
-
-<br>
-<div>
-  <%= link_to "목록으로", visions_path %>
+<%# ビジョン作成 %>
+<div class="page">
+  <%= render "shared/hero", title: "ビジョン作成" %>
+  <main class="page-body max-w-md">
+    <%= render "form", vision: @vision %>
+    <%= link_to "一覧へ戻る", visions_path, class: "btn btn-secondary mt-4 block" %>
+  </main>
 </div>

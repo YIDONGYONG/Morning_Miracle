@@ -1,8 +1,9 @@
-<h1>비전 상세</h1>
+<%# ビジョン詳細 %>
+<div class="page">
+  <%= render "visions/cover" %>
 
-<%# _vision.html.erb 파셜을 재사용하여 내용을 보여줍니다 %>
-<%= render @vision %>
-
-<div>
-  <%= link_to "목록으로", visions_path %>
+  <main class="page-body -mt-10">
+    <%= render @vision %>
+    <%= link_to "一覧へ戻る", visions_path, class: "btn btn-secondary mt-4 block" %>
+  </main>
 </div>

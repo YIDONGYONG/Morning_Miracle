@@ -1,35 +1,23 @@
 <!DOCTYPE html>
-<html>
+<html lang="ja">
   <head>
     <title>RUNTEQ BOARD APP</title>
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
+    <%# スタイルは Tailwind に一本化（トークンと部品は app/assets/tailwind/application.css） %>
     <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
-
-    <%= stylesheet_link_tag "application", "tailwind", "data-turbo-track": "reload" %>
     <%= javascript_include_tag "application", "data-turbo-track": "reload", defer: true %>
   </head>
 
-  <body>
-    <% if logged_in? %>
-      <%= render 'shared/header' %>
-    <% else %>
-      <%= render 'shared/before_login_header' %>
-    <% end %>
+  <body class="bg-canvas text-ink-body antialiased">
+    <%# PC: 上部ナビ / モバイル(ログイン時): 下部タブ。ナビは画面幅で出し分ける %>
+    <%= render "shared/navbar" %>
+    <%= render "shared/flash_message" %>
 
-    <!-- 🧭 미니멀 내비게이션 메뉴바 추가 -->
-    <nav class="bg-white border-b border-gray-100 shadow-sm px-6 py-3">
-      <div class="max-w-7xl mx-auto flex items-center space-x-8">
-        <%= link_to "ホーム", root_path, class: "text-gray-700 hover:text-indigo-600 font-medium transition-colors duration-150" %>
-        <%= link_to "ボード", visions_path, class: "text-gray-700 hover:text-indigo-600 font-medium transition-colors duration-150" %>
-        <%= link_to "ルチン", routines_path, class: "text-gray-700 hover:text-indigo-600 font-medium transition-colors duration-150" %>
-        <%= link_to "お客様サポート", "#", class: "text-gray-700 hover:text-indigo-600 font-medium transition-colors duration-150" %>
-      </div>
-    </nav>
-
-    <%= render 'shared/flash_message' %>
     <%= yield %>
-    <%= render 'shared/footer' %>
+
+    <%= render "shared/tabbar" if logged_in? %>
+    <%= render "shared/footer" %>
   </body>
 </html>

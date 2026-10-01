@@ -10,9 +10,22 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_09_19_050802) do
+ActiveRecord::Schema[7.2].define(version: 2026_10_01_000000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "routines", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.integer "category", null: false
+    t.integer "current_level", default: 1, null: false
+    t.integer "current_streak", default: 0, null: false
+    t.integer "consecutive_misses", default: 0, null: false
+    t.date "last_recorded_on"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id", "category"], name: "index_routines_on_user_id_and_category", unique: true
+    t.index ["user_id"], name: "index_routines_on_user_id"
+  end
 
   create_table "users", force: :cascade do |t|
     t.string "email", null: false
@@ -35,5 +48,6 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_19_050802) do
     t.index ["user_id"], name: "index_visions_on_user_id"
   end
 
+  add_foreign_key "routines", "users"
   add_foreign_key "visions", "users"
 end

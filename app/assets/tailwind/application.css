@@ -1,1 +1,102 @@
 @import "tailwindcss";
+
+/*
+ * デザインシステム（唯一の定義場所）
+ * ----------------------------------------------------------------
+ * 1. @theme      : デザイントークン（色・角丸・影）。ここ以外で色コードを書かない。
+ * 2. @layer components : 複数画面で再利用する部品（btn / card / field など）。
+ * 画面固有の余白やレイアウトは、ビュー側で Tailwind のユーティリティを使う。
+ * 使い方は docs/UI_GUIDE.md を参照。
+ */
+
+@theme {
+  /* 面・文字 */
+  --color-canvas: #fdf6f0;        /* ページ背景 */
+  --color-card: #fff;             /* カード・ナビ背景 */
+  --color-ink: #222;              /* 見出し */
+  --color-ink-body: #333;         /* 本文 */
+  --color-ink-muted: #777;        /* 補足 */
+  --color-ink-faint: #999;        /* 非活性・タブ */
+  --color-line: #eee;             /* 区切り線 */
+  --color-surface-muted: #f1ece7; /* 二次ボタン背景 */
+
+  /* ブランド（ヘッダーのグラデーションと強調色） */
+  --color-brand: #ef7d62;
+  --color-brand-2: #f4a261;
+  --color-brand-3: #f6c778;
+
+  /* 状態色 */
+  --color-success: #1f7a5c;
+  --color-danger: #d9534f;
+  --color-danger-soft: #fdecea;
+
+  /* ルーティンのカテゴリ色（main=強調 / soft=淡色背景） */
+  --color-exercise: #2fb38a;
+  --color-exercise-soft: #dff5ec;
+  --color-meditation: #3aa6a0;
+  --color-meditation-soft: #dcf1ef;
+  --color-reading: #f0a81c;
+  --color-reading-soft: #fdf0d3;
+  --color-planning: #6a5acd;
+  --color-planning-soft: #e6e2f8;
+
+  /* 形 */
+  --radius-card: 1.5rem;
+  --radius-hero: 2rem;
+  --shadow-card: 0 8px 24px rgb(150 90 60 / 0.12);
+}
+
+@layer components {
+  /* ---------- ページ骨格 ---------- */
+  /* ヘッダー(.hero/.cover) + 本体(.page-body) の縦積み。モバイルは下部タブ分の余白を確保 */
+  .page { @apply pb-24 md:pb-10; }
+  .hero { @apply rounded-b-hero bg-linear-to-br from-brand via-brand-2 to-brand-3 px-6 pt-10 pb-24 text-white md:px-8 md:pt-12; }
+  .hero-inner, .page-body { @apply mx-auto max-w-5xl; }
+  .hero-title { @apply text-3xl leading-tight font-extrabold md:text-5xl; }
+  .hero-lead { @apply mt-2 text-sm opacity-90; }
+  /* ヘッダーに重ねて表示する本体（カードがヘッダーに食い込む） */
+  .page-body { @apply relative -mt-14 px-5 md:px-8; }
+  /* 画像ヘッダー。画像が読み込めなくてもグラデーションで高さを保つ */
+  .cover { @apply max-h-88 min-h-44 h-[35vh] overflow-hidden rounded-b-hero bg-linear-to-br from-brand via-brand-2 to-brand-3 md:h-[30vh]; }
+
+  /* ---------- カード ---------- */
+  .card { @apply rounded-card bg-card p-5 shadow-card md:p-6; }
+  .card-grid { @apply grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6; }
+
+  /* ---------- ボタン ---------- */
+  .btn { @apply inline-block cursor-pointer rounded-full border-0 px-4 py-2.5 text-center text-sm font-bold transition active:scale-95; }
+  .btn-primary { @apply bg-brand text-white; }
+  .btn-secondary { @apply bg-surface-muted text-ink-muted; }
+  .btn-danger { @apply bg-danger-soft text-danger; }
+  .btn-tone { background: var(--tone); @apply text-white; }
+
+  /* ---------- フォーム ---------- */
+  .field-label { @apply mb-1 block pl-1 text-xs font-bold text-ink-muted; }
+  .field-input { @apply block w-full rounded-xl border border-line bg-card px-4 py-3 text-sm text-ink-body outline-none placeholder:text-ink-faint focus:border-brand focus:ring-2 focus:ring-brand/20; }
+  .field-error { @apply rounded-xl bg-danger-soft p-4 text-sm font-semibold text-danger; }
+
+  /* ---------- フラッシュ（画面上部に固定表示。flash_controller.js で自動的に消える） ---------- */
+  .toast-stack { @apply pointer-events-none fixed inset-x-4 top-4 z-50 mx-auto flex max-w-md flex-col gap-2; }
+  .toast { @apply pointer-events-auto rounded-xl px-4 py-3 text-sm font-bold shadow-card; }
+  .toast-success { @apply bg-card text-success; }
+  .toast-error { @apply bg-danger-soft text-danger; }
+
+  /* ---------- ナビゲーション ---------- */
+  .topnav-link { @apply text-sm font-bold text-ink-muted transition hover:text-brand; }
+  .topnav-link-active { @apply text-brand; }
+  .tabbar { @apply fixed inset-x-0 bottom-0 z-40 flex justify-around border-t border-line bg-card pt-2 pb-3 md:hidden; }
+  .tab { @apply flex cursor-pointer flex-col items-center gap-0.5 border-0 bg-transparent text-[0.7rem] text-ink-faint no-underline; }
+  .tab svg { @apply size-5.5; }
+  .tab-active { @apply font-bold text-brand; }
+
+  /* ---------- ルーティン用: カテゴリ色の切り替え（--tone / --tone-soft を差し替える） ---------- */
+  .tone-exercise { --tone: var(--color-exercise); --tone-soft: var(--color-exercise-soft); }
+  .tone-meditation { --tone: var(--color-meditation); --tone-soft: var(--color-meditation-soft); }
+  .tone-reading { --tone: var(--color-reading); --tone-soft: var(--color-reading-soft); }
+  .tone-planning { --tone: var(--color-planning); --tone-soft: var(--color-planning-soft); }
+  .badge { background: var(--tone-soft); color: var(--tone); @apply rounded-full px-2.5 py-0.5 text-xs font-bold whitespace-nowrap; }
+  .icon-circle { background: var(--tone-soft); color: var(--tone); @apply grid size-14 flex-none place-items-center rounded-full; }
+  .icon-circle svg { @apply size-7; }
+  .meter { background: var(--tone-soft); @apply h-2 overflow-hidden rounded-full; }
+  .meter > i { background: var(--tone); @apply block h-full rounded-full; }
+}

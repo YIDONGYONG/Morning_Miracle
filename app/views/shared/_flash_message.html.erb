@@ -1,5 +1,8 @@
-<% flash.each do |message_type, message| %>
-  <div class="alert alert-<%= flash_class(message_type) %>">
-    <%= message %>
+<%# フラッシュは通知として画面上部に重ね、数秒で自動的に消す（flash_controller.js） %>
+<% if flash.any? %>
+  <div class="toast-stack" role="status">
+    <% flash.each do |type, message| %>
+      <div class="toast <%= flash_class(type) %>" data-controller="flash"><%= message %></div>
+    <% end %>
   </div>
 <% end %>

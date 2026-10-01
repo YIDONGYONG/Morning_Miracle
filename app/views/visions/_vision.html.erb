@@ -1,10 +1,12 @@
-<div id="<%= dom_id vision %>" style="border: 1px solid #ddd; padding: 10px; margin-bottom: 10px;">
-  <h3><%= link_to vision.title, vision %></h3>
-  <p><%= vision.content %></p>
-  
-  <div>
-    <%= link_to "보기", vision %> |
-    <%= link_to "수정", edit_vision_path(vision) %> |
-    <%= link_to "삭제", vision_path(vision), data: { turbo_method: :delete, turbo_confirm: "삭제하시겠습니까?" } %>
+<%# ビジョン1件分のカード（一覧・詳細で共用） %>
+<section id="<%= dom_id vision %>" class="card">
+  <h3 class="text-lg font-extrabold text-ink"><%= link_to vision.title, vision %></h3>
+  <p class="mt-2 [overflow-wrap:anywhere] whitespace-pre-wrap text-ink-body"><%= vision.content %></p>
+
+  <div class="mt-4 flex gap-2">
+    <%= link_to "見る", vision, class: "btn btn-secondary flex-1" %>
+    <%= link_to "編集", edit_vision_path(vision), class: "btn btn-secondary flex-1" %>
+    <%= link_to "削除", vision_path(vision), class: "btn btn-danger flex-1",
+                data: { turbo_method: :delete, turbo_confirm: "削除してもよろしいですか？" } %>
   </div>
-</div>
+</section>

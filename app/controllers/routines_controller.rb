@@ -26,10 +26,10 @@ class RoutinesController < ApplicationController
     result = @routine.record_missed!
     redirect_to routines_path, notice: miss_message(result)
   end
-
+  
   private
 
-  # 自分のルーティンだけを取得する（他人のIDは404）
+  # 自分のルーティンだけを取得する（他人のIDは404,1）
   def set_routine
     @routine = current_user.routines.find(params[:id])
   end

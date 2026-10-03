@@ -1,0 +1,28 @@
+<%# 未ログインの紹介ページ。主役のボタンは「はじめる」ひとつだけ %>
+<div class="page">
+  <%= render "shared/hero",
+             title: safe_join(["また始めても、", tag.br, "大丈夫。"]),
+             lead: "意志の強さを測るアプリではありません。5分の朝を、少しずつ積み重ねましょう。" %>
+
+  <main class="page-body max-w-md space-y-4">
+    <div class="card overflow-hidden p-0 md:p-0">
+      <%= render "shared/sunrise" %>
+      <div class="space-y-4 p-6">
+        <p class="leading-relaxed text-ink-body">今日は、ひとつだけ。休んだ日があっても、積み上げた朝は消えません。</p>
+        <%= link_to "はじめる", new_user_path, class: "btn btn-primary btn-lg" %>
+        <p class="text-center text-sm"><%= link_to "ログインはこちら", login_path, class: "topnav-link" %></p>
+      </div>
+    </div>
+
+    <div class="card-grid">
+      <section class="card card-yellow">
+        <h2 class="eyebrow">今日の一歩</h2>
+        <p class="mt-1 text-ink-body">やることは、いつもひとつだけ。選ぶ疲れをなくします。</p>
+      </section>
+      <section class="card card-yellow">
+        <h2 class="eyebrow">積み上げた朝</h2>
+        <p class="mt-1 text-ink-body">連続日数ではなく、迎えた朝の数を数えます。芽は枯れません。</p>
+      </section>
+    </div>
+  </main>
+</div>

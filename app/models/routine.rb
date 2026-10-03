@@ -5,6 +5,7 @@ class Routine < ApplicationRecord
   DEMOTE_MISSES = 3    # 連続未達成がこの日数に達したら降格
 
   belongs_to :user
+  has_many :logs, class_name: "RoutineLog", dependent: :destroy
 
   # カテゴリ（運動・瞑想・読書・1日の計画）
 
@@ -55,6 +56,7 @@ class Routine < ApplicationRecord
       result = :promoted
     end
     save!
+    write_log!(true)
     result
   end
 
@@ -74,6 +76,14 @@ class Routine < ApplicationRecord
       end
     end
     save!
+    write_log!(false)
     result
+  end
+
+  private
+
+  # 今日の記録を1件だけ保存する（同じ日に再記録されても重複させない）
+  def write_log!(achieved)
+    logs.find_or_initialize_by(recorded_on: Date.current).update!(achieved: achieved)
   end
 end

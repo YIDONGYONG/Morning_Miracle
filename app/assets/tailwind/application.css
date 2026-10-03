@@ -10,54 +10,76 @@
  */
 
 @theme {
-  /* 面・文字 */
-  --color-canvas: #fdf6f0;        /* ページ背景 */
+  /* 面・文字（あたたかい茶系。純黒は使わない） */
+  --color-canvas: #fbf6ec;        /* ページ背景（クリーム） */
   --color-card: #fff;             /* カード・ナビ背景 */
-  --color-ink: #222;              /* 見出し */
-  --color-ink-body: #333;         /* 本文 */
-  --color-ink-muted: #777;        /* 補足 */
-  --color-ink-faint: #999;        /* 非活性・タブ */
-  --color-line: #eee;             /* 区切り線 */
-  --color-surface-muted: #f1ece7; /* 二次ボタン背景 */
+  --color-ink: #43372f;           /* 見出し */
+  --color-ink-body: #43372f;      /* 本文 */
+  --color-ink-muted: #75665a;     /* 補足 */
+  --color-ink-faint: #75665a;     /* 非活性・タブ（コントラスト確保のため補足と同色） */
+  --color-line: #f1e8da;          /* 区切り線 */
+  --color-surface-muted: #f6f0e6; /* 二次ボタン背景 */
 
-  /* ブランド（ヘッダーのグラデーションと強調色） */
-  --color-brand: #ef7d62;
-  --color-brand-2: #f4a261;
-  --color-brand-3: #f6c778;
+  /* 行動（CTA）= あんず。塗りにだけ使い、上の文字は ink にする */
+  --color-brand: #f6ae72;
+  --color-brand-2: #f8c07a;
+  --color-brand-3: #fbd59b;
+  --color-amber-soft: #ffefd0;    /* 選択・やさしい案内 */
 
-  /* 状態色 */
-  --color-success: #1f7a5c;
-  --color-danger: #d9534f;
-  --color-danger-soft: #fdecea;
+  /* 成長・完了 = セージ */
+  --color-sage: #8dae88;
+  --color-sage-deep: #4b6e4d;     /* 文字色 */
+  --color-sage-tint: #e8f0e3;     /* 背景 */
 
-  /* ルーティンのカテゴリ色（main=強調 / soft=淡色背景） */
-  --color-exercise: #2fb38a;
-  --color-exercise-soft: #dff5ec;
-  --color-meditation: #3aa6a0;
-  --color-meditation-soft: #dcf1ef;
-  --color-reading: #f0a81c;
+  /* 休んだ日・未完了 = ベージュ（赤は使わない） */
+  --color-beige: #efe7da;
+  --color-beige-deep: #d8cbba;
+  --color-yellow-tint: #fff6dc;   /* 希望の根拠カード */
+  --color-lavender-tint: #eee7f8; /* 夜のカード */
+  --color-lavender-deep: #5e4e80;
+
+  /* 夜明けのグラデーション（上部ヘッダー） */
+  --color-dawn-peach: #ffe0cc;
+  --color-dawn-yellow: #fff1cc;
+  --color-dawn-lavender: #e8e0f4;
+
+  /* 状態色（danger も赤ではなく、やわらかいアンバー） */
+  --color-success: #4b6e4d;
+  --color-danger: #8a5a28;
+  --color-danger-soft: #ffefd0;
+
+  /* ルーティンのカテゴリ色（main=強調 / soft=淡色背景）。文字は deep を使う */
+  --color-exercise: #5f9f86;
+  --color-exercise-soft: #e1f1ea;
+  --color-meditation: #5b9f9b;
+  --color-meditation-soft: #e0f0ee;
+  --color-reading: #c98a2e;
   --color-reading-soft: #fdf0d3;
-  --color-planning: #6a5acd;
-  --color-planning-soft: #e6e2f8;
+  --color-planning: #7d6fb3;
+  --color-planning-soft: #ebe7f7;
 
   /* 形 */
   --radius-card: 1.5rem;
   --radius-hero: 2rem;
-  --shadow-card: 0 8px 24px rgb(150 90 60 / 0.12);
+  --shadow-card: 0 8px 28px rgb(120 90 60 / 0.08);
+  --shadow-cta: 0 6px 16px rgb(246 174 114 / 0.45);
+
+  /* モーション: ゆっくり穏やかに */
+  --ease-calm: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 @layer components {
   /* ---------- ページ骨格 ---------- */
   /* ヘッダー(.hero/.cover) + 本体(.page-body) の縦積み。モバイルは下部タブ分の余白を確保 */
   .page { @apply pb-24 md:pb-10; }
-  .hero { @apply rounded-b-hero bg-linear-to-br from-brand via-brand-2 to-brand-3 px-6 pt-10 pb-24 text-white md:px-8 md:pt-12; }
+  .hero { @apply rounded-b-hero bg-linear-to-b from-dawn-peach via-dawn-yellow to-dawn-lavender px-6 pt-10 pb-24 text-ink md:px-8 md:pt-12; }
   .hero-inner, .page-body { @apply mx-auto max-w-5xl; }
-  .hero-title { @apply text-3xl leading-tight font-extrabold md:text-5xl; }
-  .hero-lead { @apply mt-2 text-sm opacity-90; }
+  .hero-title { @apply text-3xl leading-normal font-bold tracking-tight md:text-5xl; }
+  .hero-lead { @apply mt-2 text-sm leading-relaxed text-ink-muted; }
   /* ヘッダーに重ねて表示する本体（カードがヘッダーに食い込む） */
   .page-body { @apply relative -mt-14 px-5 md:px-8; }
   /* 画像ヘッダー。画像が読み込めなくてもグラデーションで高さを保つ */
-  .cover { @apply max-h-88 min-h-44 h-[35vh] overflow-hidden rounded-b-hero bg-linear-to-br from-brand via-brand-2 to-brand-3 md:h-[30vh]; }
+  .cover { @apply max-h-88 min-h-44 h-[35vh] overflow-hidden rounded-b-hero bg-linear-to-b from-dawn-peach via-dawn-yellow to-dawn-lavender md:h-[30vh]; }
 
   /* ---------- カード ---------- */
   .card { @apply rounded-card bg-card p-5 shadow-card md:p-6; }
@@ -65,10 +87,12 @@
 
   /* ---------- ボタン ---------- */
   .btn { @apply inline-block cursor-pointer rounded-full border-0 px-4 py-2.5 text-center text-sm font-bold transition active:scale-95; }
-  .btn-primary { @apply bg-brand text-white; }
+  .btn-primary { @apply bg-brand text-ink shadow-cta; }
+  /* ホームのヒーローなど、画面で唯一の主役ボタン */
+  .btn-lg { @apply flex h-15 w-full items-center justify-center text-lg; }
   .btn-secondary { @apply bg-surface-muted text-ink-muted; }
   .btn-danger { @apply bg-danger-soft text-danger; }
-  .btn-tone { background: var(--tone); @apply text-white; }
+  .btn-tone { background: var(--tone-soft); @apply border-2 border-(--tone) text-ink; }
 
   /* ---------- フォーム ---------- */
   .field-label { @apply mb-1 block pl-1 text-xs font-bold text-ink-muted; }
@@ -82,21 +106,52 @@
   .toast-error { @apply bg-danger-soft text-danger; }
 
   /* ---------- ナビゲーション ---------- */
-  .topnav-link { @apply text-sm font-bold text-ink-muted transition hover:text-brand; }
-  .topnav-link-active { @apply text-brand; }
-  .tabbar { @apply fixed inset-x-0 bottom-0 z-40 flex justify-around border-t border-line bg-card pt-2 pb-3 md:hidden; }
-  .tab { @apply flex cursor-pointer flex-col items-center gap-0.5 border-0 bg-transparent text-[0.7rem] text-ink-faint no-underline; }
+  .topnav-link { @apply text-sm font-bold text-ink-muted transition hover:text-sage-deep; }
+  .topnav-link-active { @apply text-sage-deep; }
+  .tabbar { @apply fixed inset-x-0 bottom-0 z-40 flex justify-around rounded-t-card bg-card pt-2 pb-3 shadow-[0_-6px_24px_rgb(120_90_60/0.07)] md:hidden; }
+  .tab { @apply flex min-w-16 cursor-pointer flex-col items-center gap-0.5 rounded-2xl border-0 bg-transparent px-3 py-1.5 text-xs text-ink-faint no-underline; }
   .tab svg { @apply size-5.5; }
-  .tab-active { @apply font-bold text-brand; }
+  .tab-active { @apply rounded-2xl bg-sage-tint font-bold text-sage-deep; }
 
   /* ---------- ルーティン用: カテゴリ色の切り替え（--tone / --tone-soft を差し替える） ---------- */
   .tone-exercise { --tone: var(--color-exercise); --tone-soft: var(--color-exercise-soft); }
   .tone-meditation { --tone: var(--color-meditation); --tone-soft: var(--color-meditation-soft); }
   .tone-reading { --tone: var(--color-reading); --tone-soft: var(--color-reading-soft); }
   .tone-planning { --tone: var(--color-planning); --tone-soft: var(--color-planning-soft); }
-  .badge { background: var(--tone-soft); color: var(--tone); @apply rounded-full px-2.5 py-0.5 text-xs font-bold whitespace-nowrap; }
+  .badge { background: var(--tone-soft); @apply text-ink; @apply rounded-full px-2.5 py-0.5 text-xs font-bold whitespace-nowrap; }
   .icon-circle { background: var(--tone-soft); color: var(--tone); @apply grid size-14 flex-none place-items-center rounded-full; }
   .icon-circle svg { @apply size-7; }
   .meter { background: var(--tone-soft); @apply h-2 overflow-hidden rounded-full; }
   .meter > i { background: var(--tone); @apply block h-full rounded-full; }
+
+  /* ---------- 新デザイン（新しい夜明け）: やさしい面のカード ---------- */
+  .card-amber { @apply bg-amber-soft shadow-none; }
+  .card-yellow { @apply bg-yellow-tint shadow-none; }
+  .card-lavender { @apply bg-lavender-tint shadow-none; }
+  .eyebrow { @apply text-sm font-medium text-sage-deep; }
+  .chip { @apply inline-flex items-center gap-1.5 rounded-full bg-amber-soft px-3 py-1.5 text-xs text-ink-muted; }
+
+  /* ---------- 気分の選択（軽め / 普通 / 元気） ---------- */
+  .seg { @apply grid grid-cols-3 gap-2; }
+  .seg-item { @apply flex h-12 items-center justify-center rounded-2xl border-2 border-transparent bg-surface-muted text-sm text-ink-muted no-underline transition duration-700 ease-(--ease-calm); }
+  .seg-item-active { @apply border-brand bg-amber-soft font-bold text-ink; }
+
+  /* ---------- 積み上げた朝の庭（7列。休んだ日は雲、芽は枯れない） ---------- */
+  .garden { @apply grid grid-cols-7 gap-2; }
+  .cell { @apply grid aspect-square place-items-center overflow-hidden rounded-xl; }
+  .cell svg { @apply size-full; }
+  .cell-grown { @apply bg-sage-tint; }
+  .cell-rest { @apply bg-beige; }
+  .cell-today { @apply bg-amber-soft; }
+  .cell-empty { @apply bg-surface-muted opacity-60; }
+  .legend-dot { @apply inline-block size-3 rounded bg-sage-tint align-middle; }
+
+  /* ---------- 希望の根拠: 週ごとの比較バー ---------- */
+  .bar { @apply h-2.5 flex-1 overflow-hidden rounded-full bg-white/70; }
+  .bar > i { @apply block h-full rounded-full transition-[width] duration-1000 ease-(--ease-calm); }
+
+  /* 画面の読み込みで、ゆっくり浮かび上がる（動きは控えめに） */
+  @keyframes rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+  .rise { animation: rise 0.9s var(--ease-calm) both; }
+  @media (prefers-reduced-motion: reduce) { .rise { animation: none; } }
 }

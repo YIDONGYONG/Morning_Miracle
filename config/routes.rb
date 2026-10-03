@@ -1,4 +1,6 @@
 Rails.application.routes.draw do
+  # ヘルスチェック（ログイン不要・DBに触れない）。Render の Health Check Path とスリープ対策の ping 先に使う
+  get "up", to: "rails/health#show", as: :rails_health_check
   root "static_pages#top"
   resources :users, only: %i[new create]
   resources :visions

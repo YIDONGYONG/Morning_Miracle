@@ -1,0 +1,133 @@
+# ホーム画面（今日）の表示データをまとめる。
+# 「積み上げた朝」は減らない累計、休んだ日は空白ではなく「休んだ日」として扱う。
+class HomePresenter
+  GARDEN_DAYS = 28        # 庭に表示する日数（7列 × 4週）
+  RETURN_AFTER_DAYS = 2   # この日数以上あいたら「また始める」カードを出す
+  EVENING_FROM_HOUR = 18  # 「明日の私へ」を出し始める時刻
+  MOODS = { "light" => "軽め", "normal" => "普通", "strong" => "元気" }.freeze
+  MOOD_HINTS = {
+    "light" => "軽い日は、いつもより小さな一歩でも十分です。",
+    "normal" => "いつも通り、これだけやってみましょう。",
+    "strong" => "力が出る日は、少しだけ先の一歩もどうぞ。"
+  }.freeze
+
+  Cell = Struct.new(:date, :state, :stage, keyword_init: true) # state: :grown / :rest / :today / :empty
+
+  attr_reader :mood
+
+  def initialize(user, mood: nil, now: Time.current)
+    @user = user
+    @now = now
+    @mood = MOODS.key?(mood.to_s) ? mood.to_s : "normal"
+  end
+
+  def today = @now.to_date
+  def mood_label(key) = MOODS[key]
+  def mood_hint = MOOD_HINTS[mood]
+
+  # ---- 時間帯 ----
+  def evening? = @now.hour >= EVENING_FROM_HOUR
+  def clock_text = @now.strftime("%-H:%M")
+
+  def greeting
+    case @now.hour
+    when 5..10 then ["おはようございます。", "今日は、ひとつだけやってみましょう。"]
+    when 11..17 then ["こんにちは。", "今日の一歩は、まだ間に合います。"]
+    else ["おつかれさまでした。", "明日の朝を、そっと準備しましょう。"]
+    end
+  end
+
+  # ---- 今日の一歩（ヒーロー） ----
+  def routines = @routines ||= @user.routines.order(:category).to_a
+  def started? = routines.any?
+  def pending_routines = routines.reject(&:recorded_today?)
+  def step_routine = pending_routines.first
+  def all_done_today? = started? && pending_routines.empty?
+
+  # 気分に応じて目標のレベルを上下させる（軽め=ひとつ下 / 元気=ひとつ上）
+  def step_goal(routine = step_routine)
+    return unless routine
+
+    level = case mood
+            when "light" then [routine.current_level - 1, 1].max
+            when "strong" then [routine.current_level + 1, Routine::MAX_LEVEL].min
+            else routine.current_level
+            end
+    routine.goal(level)
+  end
+
+  # 完了済みなら、今日達成したルーティン名（なければ nil）
+  def done_labels = routines.select { |r| r.recorded_today? && achieved_today?(r) }.map(&:category_label)
+
+  # ---- 積み上げた朝 ----
+  def total_mornings = achieved_dates.size
+
+  def garden
+    @garden ||= begin
+      start = log_dates.min
+      ordinal = achieved_dates.sort.each_with_index.to_h
+      ((today - GARDEN_DAYS + 1)..today).map do |date|
+        if achieved_dates.include?(date)
+          Cell.new(date: date, state: :grown, stage: stage_for(ordinal[date]))
+        elsif date == today
+          Cell.new(date: date, state: :today)
+        elsif start && date >= start
+          Cell.new(date: date, state: :rest)
+        else
+          Cell.new(date: date, state: :empty)
+        end
+      end
+    end
+  end
+
+  # ---- また始める ----
+  def last_achieved_on = achieved_dates.max
+
+  def returning?
+    last_achieved_on.present? && !achieved_dates.include?(today) && (today - last_achieved_on) >= RETURN_AFTER_DAYS
+  end
+
+  # ---- 希望の根拠 ----
+  def this_week = count_between(today - 6, today)
+  def last_week = count_between(today - 13, today - 7)
+  def week_up? = this_week > last_week
+
+  def hope_title
+    if week_up? then "先週より、朝を#{this_week - last_week}回多く迎えました。"
+    elsif total_mornings.positive? then "これまでに、朝を#{total_mornings}回迎えました。"
+    else "ここが最初の一歩です。"
+    end
+  end
+
+  def hope_body
+    if total_mornings.zero?
+      "うまくいかなかった日の記録は、ここにはありません。今日の5分から始めましょう。"
+    elsif returning?
+      "休んだ日があっても、積み上げた#{total_mornings}回の朝は消えません。"
+    else
+      "小さな一歩が積み重なっている証拠です。今日の一歩も、その上にそっと重ねましょう。"
+    end
+  end
+
+  # ---- 明日の私へ（夕方以降） ----
+  def tomorrow_card? = evening? && started?
+  def tomorrow_routine = routines.first
+  def tomorrow_goal = tomorrow_routine&.goal
+
+  private
+
+  def logs = @logs ||= @user.routine_logs.pluck(:recorded_on, :achieved)
+  def log_dates = logs.map(&:first)
+  def achieved_dates = @achieved_dates ||= logs.select(&:last).map(&:first).to_set
+  def achieved_today?(routine) = routine.logs.exists?(recorded_on: today, achieved: true)
+  def count_between(from, to) = achieved_dates.count { |d| d.between?(from, to) }
+
+  # 積み上げるほど芽が育つ（減ることはない）
+  def stage_for(index)
+    case index
+    when 0..6 then 1
+    when 7..13 then 2
+    else 3
+    end
+  end
+end

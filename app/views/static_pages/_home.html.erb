@@ -1,0 +1,98 @@
+<%# ホーム（今日）: 挨拶 → 今日の一歩 → 積み上げた朝 → また始める → 希望の根拠 → 明日の私へ %>
+<% home = @home %>
+<div class="page">
+  <%= render "shared/hero",
+             title: safe_join(home.greeting, tag.br),
+             lead: "#{home.clock_text}・#{current_user_name} さん" %>
+
+  <main class="page-body max-w-md space-y-4">
+
+    <%# 今日の一歩（ヒーローカード） %>
+    <section class="card rise overflow-hidden p-0 md:p-0">
+      <%= render "shared/sunrise" %>
+      <div class="space-y-4 p-6">
+        <% if !home.started? %>
+          <p class="eyebrow">はじめの一歩</p>
+          <p class="text-xl leading-relaxed font-bold text-ink">まずは、ごく小さな目標から。</p>
+          <%= button_to "レベル1からスタート", routines_path, method: :post, class: "btn btn-primary btn-lg", form: { class: "contents" } %>
+        <% elsif home.all_done_today? %>
+          <p class="eyebrow">今日の一歩</p>
+          <p class="text-xl leading-relaxed font-bold text-ink">今日の一歩、できました。</p>
+          <p class="text-sm leading-relaxed text-ink-muted">
+            <%= home.done_labels.any? ? "#{home.done_labels.to_sentence(words_connector: '、', two_words_connector: '、', last_word_connector: '、')}の芽が、ひとつ育ちました。" : "今日はゆっくり休みましょう。それも大切な一日です。" %>
+          </p>
+        <% else %>
+          <% routine = home.step_routine %>
+          <div class="tone-<%= routine.category %> space-y-1">
+            <p class="eyebrow">今日の一歩 ・ <%= routine.category_label %></p>
+            <p class="text-xl leading-relaxed font-bold text-ink"><%= home.step_goal(routine) %></p>
+            <p class="text-sm leading-relaxed text-ink-muted">5分もかかりません。1分だけでも、立派な一歩です。</p>
+          </div>
+          <%= link_to "5分だけ始める", routines_path(anchor: dom_id(routine)), class: "btn btn-primary btn-lg" %>
+
+          <div class="space-y-2 pt-1">
+            <p class="text-sm text-ink-muted">今日の調子はどうですか？</p>
+            <div class="seg">
+              <% HomePresenter::MOODS.each do |key, label| %>
+                <%= link_to label, root_path(mood: key), class: ["seg-item", ("seg-item-active" if home.mood == key)],
+                            aria: { current: (home.mood == key ? "true" : nil) } %>
+              <% end %>
+            </div>
+            <p class="text-sm leading-relaxed text-ink-muted"><%= home.mood_hint %></p>
+          </div>
+        <% end %>
+      </div>
+    </section>
+
+    <%# 積み上げた朝 %>
+    <section class="card space-y-4">
+      <div>
+        <p class="text-sm text-ink-muted">これまでに迎えた朝</p>
+        <p class="leading-tight text-sage-deep"><span class="text-6xl font-bold"><%= home.total_mornings %></span><span class="ml-1 text-2xl font-medium">回</span></p>
+      </div>
+      <div class="garden" role="list" aria-label="最近4週間の朝">
+        <% home.garden.each do |cell| %>
+          <%= render "static_pages/cell", cell: cell %>
+        <% end %>
+      </div>
+      <div class="space-y-1 text-sm text-ink-muted">
+        <p class="flex gap-4 text-xs">
+          <span><i class="legend-dot"></i> 迎えた朝</span>
+          <span><i class="legend-dot !bg-beige"></i> 休んだ日</span>
+        </p>
+        <p class="leading-relaxed">休んだ日も、芽は枯れません。</p>
+      </div>
+    </section>
+
+    <%# また始める（数日あいたときだけ表示） %>
+    <% if home.returning? %>
+      <section class="card card-amber rise space-y-1">
+        <h2 class="text-lg font-bold text-ink">数日、休みましたね。大丈夫です。</h2>
+        <p class="leading-relaxed text-ink-muted">今日、また開いたこと。それがもう、はじまりです。</p>
+      </section>
+    <% end %>
+
+    <%# 希望の根拠 %>
+    <section class="card card-yellow space-y-3">
+      <p class="eyebrow !text-ink-muted">小さな証拠</p>
+      <h2 class="text-xl leading-relaxed font-bold text-ink"><%= home.hope_title %></h2>
+      <% if home.week_up? %>
+        <div class="space-y-2 text-xs text-ink-muted">
+          <div class="flex items-center gap-2"><span class="w-12">先週</span><div class="bar"><i class="bg-beige-deep" style="width: <%= home.last_week * 100 / 7 %>%"></i></div><span class="w-8 text-right"><%= home.last_week %>回</span></div>
+          <div class="flex items-center gap-2 font-medium text-sage-deep"><span class="w-12">今週</span><div class="bar"><i class="bg-sage" style="width: <%= home.this_week * 100 / 7 %>%"></i></div><span class="w-8 text-right"><%= home.this_week %>回</span></div>
+        </div>
+      <% end %>
+      <p class="text-sm leading-relaxed text-ink-muted"><%= home.hope_body %></p>
+    </section>
+
+    <%# 明日の私へ（夕方以降だけ表示） %>
+    <% if home.tomorrow_card? %>
+      <section class="card card-lavender rise space-y-2">
+        <p class="eyebrow !text-lavender-deep">明日の私へ</p>
+        <h2 class="text-xl leading-relaxed font-bold text-ink">明日の最初の一歩</h2>
+        <p class="rounded-2xl bg-white/70 px-4 py-3 text-ink-body"><%= home.tomorrow_goal %></p>
+        <p class="text-sm text-ink-muted">明日の朝、5分だけ会いましょう。</p>
+      </section>
+    <% end %>
+  </main>
+</div>

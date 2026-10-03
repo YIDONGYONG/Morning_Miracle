@@ -10,9 +10,19 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_10_01_000000) do
+ActiveRecord::Schema[7.2].define(version: 2026_10_03_000000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "routine_logs", force: :cascade do |t|
+    t.bigint "routine_id", null: false
+    t.date "recorded_on", null: false
+    t.boolean "achieved", default: true, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["routine_id", "recorded_on"], name: "index_routine_logs_on_routine_id_and_recorded_on", unique: true
+    t.index ["routine_id"], name: "index_routine_logs_on_routine_id"
+  end
 
   create_table "routines", force: :cascade do |t|
     t.bigint "user_id", null: false
@@ -48,6 +58,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_10_01_000000) do
     t.index ["user_id"], name: "index_visions_on_user_id"
   end
 
+  add_foreign_key "routine_logs", "routines"
   add_foreign_key "routines", "users"
   add_foreign_key "visions", "users"
 end

@@ -12,7 +12,7 @@ class RoutinesController < ApplicationController
     Routine.categories.each_key do |category|
       current_user.routines.find_or_create_by!(category: category)
     end
-    redirect_to routines_path, notice: "レベル1からスタートしました"
+    redirect_to routines_path, notice: "レベル1から始めました。小さな一歩で大丈夫です"
   end
 
   # 今日の「達成」を記録する
@@ -38,8 +38,8 @@ class RoutinesController < ApplicationController
   # 達成時のフラッシュメッセージ
   def complete_message(result)
     case result
-    when :promoted then "おめでとう！ レベル#{@routine.current_level}に昇格しました"
-    when :recorded then "達成を記録しました（連続 #{@routine.current_streak} 日）"
+    when :promoted then "レベル#{@routine.current_level}に上がりました。続けてきた力です"
+    when :recorded then "今日の一歩、できましたね（#{@routine.current_streak}日続いています）"
     else "今日はすでに記録済みです"
     end
   end
@@ -48,8 +48,8 @@ class RoutinesController < ApplicationController
   # 未達成時のフラッシュメッセージ
   def miss_message(result)
     case result
-    when :demoted then "レベル#{@routine.current_level}に戻りました。小さな一歩からやり直しましょう"
-    when :recorded then "未達成を記録しました"
+    when :demoted then "レベル#{@routine.current_level}に戻りました。小さな一歩から、また始めましょう"
+    when :recorded then "今日はお休みですね。大丈夫、また明日"
     else "今日はすでに記録済みです"
     end
   end

@@ -5,6 +5,7 @@ class RoutinesController < ApplicationController
   def index
     @routines = current_user.routines.order(:category)
     @missing_categories = Routine.categories.keys - @routines.map(&:category)
+    @today_logs = ActivityLog.where(user: current_user).completed_on(Date.current).index_by(&:activity_key)
   end
 
   # 4つのコアルーティンを Level 1 から一括で開始する

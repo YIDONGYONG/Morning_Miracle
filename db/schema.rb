@@ -10,9 +10,26 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_10_03_000000) do
+ActiveRecord::Schema[7.2].define(version: 2026_10_03_010000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "activity_logs", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.integer "level", null: false
+    t.string "activity_key", null: false
+    t.integer "kind", null: false
+    t.integer "target_seconds"
+    t.integer "actual_seconds", default: 0, null: false
+    t.datetime "started_at", null: false
+    t.datetime "completed_at", null: false
+    t.boolean "completed_fully", default: true, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id", "activity_key", "completed_at"], name: "idx_on_user_id_activity_key_completed_at_b38c9a0375"
+    t.index ["user_id", "completed_at"], name: "index_activity_logs_on_user_id_and_completed_at"
+    t.index ["user_id"], name: "index_activity_logs_on_user_id"
+  end
 
   create_table "routine_logs", force: :cascade do |t|
     t.bigint "routine_id", null: false
@@ -58,6 +75,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_10_03_000000) do
     t.index ["user_id"], name: "index_visions_on_user_id"
   end
 
+  add_foreign_key "activity_logs", "users"
   add_foreign_key "routine_logs", "routines"
   add_foreign_key "routines", "users"
   add_foreign_key "visions", "users"

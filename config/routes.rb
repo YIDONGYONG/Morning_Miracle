@@ -4,6 +4,8 @@ Rails.application.routes.draw do
   root "static_pages#top"
   resources :users, only: %i[new create]
   resources :visions
+  # 「やってみた」の記録(タイマー完了・途中でやめた・ワンタップ完了)。Turbo Stream で画面を更新する
+  resources :activity_logs, only: :create
   resources :routines, only: %i[index create] do
     member do
       post :complete

@@ -2,7 +2,7 @@
 <div class="page">
   <%= render "shared/hero",
              title: safe_join(["ルーティン", tag.br, "小さな一歩を、ひとつずつ"]),
-             lead: "#{Routine::PROMOTE_STREAK}日続けるとレベルが上がります。#{Routine::DEMOTE_MISSES}日続けて休んだときは、一段やさしい一歩に戻ります。" %>
+             lead: safe_join(["これまでに迎えた朝 ", tag.span(current_user.mornings_count, id: "mornings_count", class: "font-bold"), "回。#{Routine::PROMOTE_STREAK}日続けるとレベルが上がります。#{Routine::DEMOTE_MISSES}日続けて休んだときは、一段やさしい一歩に戻ります。"]) %>
 
   <main class="page-body">
     <% if @missing_categories.any? %>
@@ -14,35 +14,7 @@
 
     <div class="card-grid">
       <% @routines.each do |routine| %>
-        <section id="<%= dom_id(routine) %>" class="card tone-<%= routine.category %> scroll-mt-4">
-          <div class="flex items-center gap-4">
-            <div class="icon-circle"><%= render "routines/icon", category: routine.category %></div>
-            <div class="min-w-0 flex-1">
-              <strong class="block text-lg text-ink"><%= routine.category_label %></strong>
-              <span class="text-sm text-ink-muted"><%= routine.category_tagline %></span>
-            </div>
-            <span class="badge">レベル <%= routine.current_level %> / <%= Routine::MAX_LEVEL %></span>
-          </div>
-
-          <%# 進捗バー: 幅だけは動的な値なので style で渡す（色はトークン） %>
-          <div class="meter mt-4"><i style="width: <%= routine.current_level * 100 / Routine::MAX_LEVEL %>%"></i></div>
-
-          <p class="mt-4 text-ink-body"><%= routine.goal %></p>
-          <p class="mt-1 text-xs text-ink-faint"><%= routine.concept %></p>
-          <p class="mt-1 text-xs text-ink-faint">
-            続けた日 <%= routine.current_streak %>/<%= Routine::PROMOTE_STREAK %>日
-            <% if routine.consecutive_misses > 0 %>・休んだ日 <%= routine.consecutive_misses %>/<%= Routine::DEMOTE_MISSES %>日<% end %>
-          </p>
-
-          <% if routine.recorded_today? %>
-            <p class="mt-4 text-sm text-ink-faint">今日は記録済みです</p>
-          <% else %>
-            <div class="mt-4 flex gap-2">
-              <%= button_to "できた", complete_routine_path(routine), method: :post, class: "btn btn-tone w-full", form: { class: "flex-1" } %>
-              <%= button_to "今日は休む", miss_routine_path(routine), method: :post, class: "btn btn-secondary w-full", form: { class: "flex-1" } %>
-            </div>
-          <% end %>
-        </section>
+        <%= render "routines/routine", routine: routine, today_log: @today_logs[routine.category] %>
       <% end %>
     </div>
   </main>

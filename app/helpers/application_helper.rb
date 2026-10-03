@@ -10,4 +10,9 @@ module ApplicationHelper
   def flash_class(message_type)
     { "notice" => "toast-success", "alert" => "toast-error" }.fetch(message_type.to_s, "toast-success")
   end
+
+  # 秒数を「10秒」「1分30秒」の形に整える（文言の組み立ては ActivityText に一本化）
+  def format_duration(seconds)
+    ActivityText.duration(seconds)
+  end
 end

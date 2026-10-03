@@ -1,0 +1,3 @@
+<%= turbo_stream.replace dom_id(@routine), partial: "routines/routine",
+      locals: { routine: @routine, today_log: @today_logs[@routine.category], notice: @notice } %>
+<%= turbo_stream.update "mornings_count", current_user.mornings_count %>

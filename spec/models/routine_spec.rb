@@ -34,3 +34,22 @@ RSpec.describe Routine, type: :model do
     expect(routine.record_missed!).to be_nil
   end
 end
+
+RSpec.describe Routine, "activity definitions" do
+  it "gives every activity a valid kind with the data its kind needs" do
+    Routine::LEVELS.each do |level|
+      Routine.categories.each_key do |category|
+        a = level[category.to_sym]
+        expect(%i[timer count check]).to include(a[:kind])
+        expect(a[:seconds]).to be_a(Integer) if a[:kind] == :timer
+        expect(a[:amount]).to be_a(Integer) if a[:kind] == :count
+      end
+    end
+  end
+
+  it "builds display text from label, value and note" do
+    r = Routine.new(category: :exercise, current_level: 8)
+    expect(r.goal).to eq "ジョギング 15分 (日光浴)"
+    expect(Routine.new(category: :planning, current_level: 8).goal).to eq "一日のスケジュール完成 (5分)"
+  end
+end

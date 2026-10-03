@@ -79,3 +79,30 @@ RSpec.describe "ActivityLogs celebration", type: :request do
     expect(response.body).to include('target="celebration"').and include("All Clear!")
   end
 end
+
+RSpec.describe "ActivityLogs repeated taps", type: :request do
+  let!(:user) { User.create!(email: "tap@example.com", password: "pass", first_name: "a", last_name: "b") }
+  let(:headers) { { "Accept" => "text/vnd.turbo-stream.html" } }
+
+  before do
+    post login_path, params: { email: user.email, password: "pass" }
+    post routines_path
+  end
+
+  it "records once and answers calmly when 'できた' is tapped repeatedly" do
+    5.times do
+      post activity_logs_path, headers: headers, params: { activity_log: { activity_key: "planning" } }
+      expect(response).to have_http_status(:ok)
+    end
+    expect(ActivityLog.where(user: user, activity_key: "planning").count).to eq 1
+    expect(user.routine_logs.where(recorded_on: Date.current).count).to eq 1
+  end
+
+  it "does not blow up when the same routine was already recorded as 'rest'" do
+    routine = user.routines.find_by(category: :planning)
+    routine.record_missed!
+    post activity_logs_path, headers: headers, params: { activity_log: { activity_key: "planning" } }
+    expect(response).to have_http_status(:ok)
+    expect(ActivityLog.count).to eq 0
+  end
+end

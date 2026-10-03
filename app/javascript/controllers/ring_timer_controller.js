@@ -3,19 +3,22 @@ import { Controller } from "@hotwired/stimulus"
 // 円形リングタイマー。待機 → 進行中 → 完了(または「ここまででOK」で終了)。
 // 経過時間は setInterval で1秒ずつ引かず、開始時刻との差で毎回計算する(タブが隠れてもずれない)。
 // 描画は requestAnimationFrame、タブが隠れて止まる間は setTimeout と visibilitychange で補う。
+// 終わる少し前(長さに応じて3〜10秒前)と完了のときに、やさしい音と振動で自動的に知らせる。
 // 完了・中断すると、フォーム(開始時刻 + できた秒数)を Turbo で送り、カードがサーバー側の表示に差し替わる。
 const RADIUS = 54
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS
+const WARN_BEFORE_SECONDS = (total) => (total >= 60 ? 10 : 3) // 終わる何秒前に知らせるか
 
 export default class extends Controller {
-  static targets = ["face", "ring", "numbers", "remaining", "percent", "status",
-                    "startButton", "pauseButton", "stopButton", "form", "startedAt", "actualSeconds", "soundToggle"]
+  static targets = ["face", "ring", "remaining", "percent", "status",
+                    "startButton", "pauseButton", "stopButton", "form", "startedAt", "actualSeconds"]
   static values = { seconds: Number, pauseable: Boolean }
 
   connect() {
     this.state = "idle"            // idle / running / paused / finished
     this.elapsedBefore = 0         // 一時停止までに進んだ時間(ms)
     this.runStartedAt = null       // いまの再生を始めた時刻(ms)
+    this.warned = false            // 「もうすぐ終わり」を知らせたか
     this.reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches
     this.ringTarget.style.strokeDasharray = CIRCUMFERENCE
     this.ringTarget.style.strokeDashoffset = CIRCUMFERENCE
@@ -34,7 +37,7 @@ export default class extends Controller {
   // ---- 操作 ----
   start() {
     if (this.state !== "idle") return
-    this.prepareAudio() // 音はユーザーのタップの中で準備する(ブラウザの自動再生制限のため)
+    this.prepareAudio() // 音は、ユーザーのタップの中で準備する(ブラウザの自動再生制限のため)
     this.startedAtIso = new Date().toISOString()
     this.runStartedAt = Date.now()
     this.state = "running"
@@ -78,11 +81,6 @@ export default class extends Controller {
     this.submit(elapsed)
   }
 
-  // 「リングだけ見る」集中モード(数字を隠す)
-  toggleFocus(event) {
-    this.numbersTarget.classList.toggle("invisible", event.target.checked)
-  }
-
   // ---- 時間の計算と描画 ----
   elapsedMs() {
     return this.elapsedBefore + (this.runStartedAt ? Date.now() - this.runStartedAt : 0)
@@ -93,6 +91,7 @@ export default class extends Controller {
     if (this.state !== "running") return
     this.render()
     if (this.elapsedMs() >= this.secondsValue * 1000) return this.complete()
+    this.warnIfNeeded()
     this.schedule()
   }
 
@@ -100,6 +99,10 @@ export default class extends Controller {
     const remainingMs = this.secondsValue * 1000 - this.elapsedMs()
     // 終了の瞬間に確実に呼ぶ(タブが隠れていても)
     this.endTimeout = setTimeout(() => this.tick(), remainingMs + 20)
+    if (!this.warned) {
+      const untilWarn = remainingMs - WARN_BEFORE_SECONDS(this.secondsValue) * 1000
+      this.warnTimeout = setTimeout(() => this.tick(), Math.max(untilWarn, 0) + 20)
+    }
     if (this.reduceMotion) {
       this.timeout = setTimeout(() => this.tick(), 1000) // 動きを減らす設定: 1秒ごとに静かに更新
     } else {
@@ -112,7 +115,8 @@ export default class extends Controller {
     cancelAnimationFrame(this.raf)
     clearTimeout(this.timeout)
     clearTimeout(this.endTimeout)
-    this.raf = this.timeout = this.endTimeout = null
+    clearTimeout(this.warnTimeout)
+    this.raf = this.timeout = this.endTimeout = this.warnTimeout = null
   }
 
   render() {
@@ -131,7 +135,7 @@ export default class extends Controller {
     this.hideButtons()
     this.announce("できました")
     this.releaseWakeLock()
-    this.notify()
+    this.notify([200, 100, 200], 1.2)
     this.submit(this.secondsValue)
   }
 
@@ -139,6 +143,7 @@ export default class extends Controller {
     this.state = "idle"
     this.elapsedBefore = 0
     this.runStartedAt = null
+    this.warned = false
     this.ringTarget.style.strokeDashoffset = CIRCUMFERENCE
     this.remainingTarget.textContent = this.secondsValue < 60 ? String(this.secondsValue)
       : `${Math.floor(this.secondsValue / 60)}:${String(this.secondsValue % 60).padStart(2, "0")}`
@@ -196,21 +201,29 @@ export default class extends Controller {
     this.wakeLock = null
   }
 
-  // 完了のお知らせ: 振動(対応端末のみ)と、オンにしたときだけ小さな音
-  notify() {
-    try { navigator.vibrate?.([200, 100, 200]) } catch (_error) { /* 何もしない */ }
-    this.beep()
+  // 終わる少し前に、一度だけそっと知らせる(短い音と軽い振動)
+  warnIfNeeded() {
+    if (this.warned) return
+    const remaining = this.secondsValue - this.elapsedMs() / 1000
+    if (remaining > WARN_BEFORE_SECONDS(this.secondsValue)) return
+    this.warned = true
+    this.notify([80], 0.5)
+  }
+
+  // お知らせ: 振動(対応端末のみ)ややわらかい音。どちらも失敗しても進行には影響しない
+  notify(vibration, soundSeconds) {
+    try { navigator.vibrate?.(vibration) } catch (_error) { /* 何もしない */ }
+    this.beep(soundSeconds)
   }
 
   prepareAudio() {
-    if (!this.hasSoundToggleTarget || !this.soundToggleTarget.checked) return
     const Context = window.AudioContext || window.webkitAudioContext
     if (!Context) return
     this.audio = new Context()
     this.audio.resume?.()
   }
 
-  beep() {
+  beep(seconds) {
     if (!this.audio) return
     try {
       const osc = this.audio.createOscillator()
@@ -219,10 +232,10 @@ export default class extends Controller {
       osc.frequency.value = 523
       gain.gain.setValueAtTime(0.0001, this.audio.currentTime)
       gain.gain.exponentialRampToValueAtTime(0.15, this.audio.currentTime + 0.1)
-      gain.gain.exponentialRampToValueAtTime(0.0001, this.audio.currentTime + 1.2)
+      gain.gain.exponentialRampToValueAtTime(0.0001, this.audio.currentTime + seconds)
       osc.connect(gain).connect(this.audio.destination)
       osc.start()
-      osc.stop(this.audio.currentTime + 1.3)
+      osc.stop(this.audio.currentTime + seconds + 0.1)
     } catch (_error) { /* 音が出なくても完了には影響しない */ }
   }
 }

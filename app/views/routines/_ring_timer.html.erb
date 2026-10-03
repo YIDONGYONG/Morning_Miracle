@@ -1,7 +1,6 @@
 <%# 円形のリングタイマー（kind: :timer）。動きは ring_timer_controller.js。locals: routine, seconds
     状態: 待機(空のリング + はじめる) → 進行中(リングが時計回りに満ちる) → 完了(セージ色 + できました) %>
 <% pauseable = seconds >= 300 %>
-<% focusable = routine.category == "meditation" %>
 <div class="mt-4 flex flex-col items-center gap-3 text-center"
      data-controller="ring-timer"
      data-ring-timer-seconds-value="<%= seconds %>"
@@ -12,7 +11,7 @@
       <circle class="ring-track" cx="60" cy="60" r="54"/>
       <circle class="ring-progress" cx="60" cy="60" r="54" data-ring-timer-target="ring"/>
     </svg>
-    <div class="ring-label" data-ring-timer-target="numbers">
+    <div class="ring-label">
       <span class="text-4xl font-bold text-ink tabular-nums" data-ring-timer-target="remaining"><%= seconds < 60 ? seconds : format("%d:%02d", seconds / 60, seconds % 60) %></span>
       <span class="text-xs text-ink-muted"><span data-ring-timer-target="percent">0</span>%</span>
     </div>
@@ -27,13 +26,6 @@
       <button type="button" class="btn btn-secondary hidden" data-ring-timer-target="pauseButton" data-action="ring-timer#togglePause">一時停止</button>
     <% end %>
     <button type="button" class="btn btn-secondary hidden" data-ring-timer-target="stopButton" data-action="ring-timer#stop">ここまででOK</button>
-  </div>
-
-  <div class="flex flex-wrap justify-center gap-x-4 gap-y-1 text-xs text-ink-muted">
-    <% if focusable %>
-      <label class="flex items-center gap-1.5"><input type="checkbox" data-action="ring-timer#toggleFocus"> リングだけ見る</label>
-    <% end %>
-    <label class="flex items-center gap-1.5"><input type="checkbox" data-ring-timer-target="soundToggle"> 音もならす</label>
   </div>
 
   <%# 完了・中断時にこのフォームを Turbo で送る（CSRF トークンは form_with が入れる）。送る値は開始時刻と「できた秒数」だけで、サーバー側で検証する %>

@@ -20,6 +20,6 @@ RSpec.describe "Routines", type: :request do
     post routines_path
     routine = user.routines.first
     post complete_routine_path(routine)
-    expect(routine.reload.current_streak).to eq 1
+    expect(routine.reload.recorded_today?).to be true
   end
 end

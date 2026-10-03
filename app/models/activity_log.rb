@@ -43,11 +43,13 @@ class ActivityLog < ApplicationRecord
     nil
   end
 
-  # 画面用: 「できました」「3秒もできました」
-  def message
-    return "できました" if completed_fully?
+  SUCCESS_MESSAGES = ["Great job!", "Well done!", "Nice work!", "Awesome!", "You did it!"].freeze
 
-    "#{ActivityText.duration(actual_seconds)}もできました"
+  # 画面用の成功メッセージ。再表示しても同じ文言になるよう、記録のIDで決める。途中でやめても、できた分を認める
+  def message
+    return SUCCESS_MESSAGES[id.to_i % SUCCESS_MESSAGES.size] if completed_fully?
+
+    "#{ActivityText.duration_en(actual_seconds)} counts. Nice start!"
   end
 
   private

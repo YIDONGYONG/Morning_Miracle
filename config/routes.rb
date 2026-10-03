@@ -6,6 +6,13 @@ Rails.application.routes.draw do
   resources :visions
   # 「やってみた」の記録(タイマー完了・途中でやめた・ワンタップ完了)。Turbo Stream で画面を更新する
   resources :activity_logs, only: :create
+  resources :weekly_reviews, only: [] do
+    member do
+      post :acknowledge
+      post :accept
+      post :decline
+    end
+  end
   resources :routines, only: %i[index create] do
     member do
       post :complete

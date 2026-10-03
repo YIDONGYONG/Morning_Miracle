@@ -44,13 +44,16 @@
       </div>
     </section>
 
+    <%# 先週の振り返り（レベルアップ・休み券・一段階軽くする提案）。ある時だけ表示 %>
+    <%= render "weekly_reviews/notice", review: home.review, user: current_user if home.review %>
+
     <%# 積み上げた朝 %>
     <section class="card space-y-4">
       <div>
         <p class="text-sm text-ink-muted">これまでに迎えた朝</p>
         <p class="leading-tight text-sage-deep"><span class="text-6xl font-bold"><%= home.total_mornings %></span><span class="ml-1 text-2xl font-medium">回</span></p>
       </div>
-      <div class="garden" role="list" aria-label="最近4週間の朝">
+      <div class="garden" role="list" aria-label="2週間の朝">
         <% home.garden.each do |cell| %>
           <%= render "static_pages/cell", cell: cell %>
         <% end %>
@@ -60,6 +63,7 @@
           <span><i class="legend-dot"></i> 迎えた朝</span>
           <span><i class="legend-dot !bg-beige"></i> 休んだ日</span>
         </p>
+        <p class="text-xs leading-relaxed">今週、すべてできた日 <b class="text-sage-deep"><%= home.week_clear_days %></b>/<%= home.promote_days %>日。1週間に<%= home.promote_days %>日できると、次のレベルに進みます。</p>
         <p class="leading-relaxed">休んだ日も、芽は枯れません。</p>
       </div>
     </section>

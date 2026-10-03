@@ -1,6 +1,6 @@
 <%# ルーティン1件のカード。Turbo Stream で丸ごと差し替えられるよう id を持つ。locals: routine, today_log(任意), notice(任意) %>
 <% activity = routine.activity %>
-<section id="<%= dom_id(routine) %>" class="card tone-<%= routine.category %> scroll-mt-4">
+<section id="<%= dom_id(routine) %>" class="card tone-<%= routine.category %> scroll-mt-4 <%= 'card-celebrate' if local_assigns[:fresh] %>">
   <div class="flex items-center gap-4">
     <div class="icon-circle"><%= render "routines/icon", category: routine.category %></div>
     <div class="min-w-0 flex-1">
@@ -14,17 +14,16 @@
   <div class="meter mt-4"><i style="width: <%= routine.current_level * 100 / Routine::MAX_LEVEL %>%"></i></div>
 
   <p class="mt-4 text-ink-body"><%= routine.goal %></p>
-  <p class="mt-1 text-xs text-ink-faint"><%= routine.concept %></p>
-  <p class="mt-1 text-xs text-ink-faint">
-    続けた日 <%= routine.current_streak %>/<%= Routine::PROMOTE_STREAK %>日
-    <% if routine.consecutive_misses > 0 %>・休んだ日 <%= routine.consecutive_misses %>/<%= Routine::DEMOTE_MISSES %>日<% end %>
-  </p>
 
   <% if routine.recorded_today? %>
     <%# 記録済み。タイマーなら完了の輪(セージ色)を見せ、途中でやめた場合も「できた分」を認める %>
-    <div class="mt-4 flex items-center gap-3 rounded-2xl bg-sage-tint px-4 py-3 text-sage-deep" role="status">
-      <svg viewBox="0 0 24 24" class="size-6 flex-none" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
-      <p class="text-sm font-bold"><%= today_log ? today_log.message : "今日は記録済みです" %></p>
+    <div class="success mt-4 <%= 'success-fresh' if local_assigns[:fresh] %>" role="status">
+      <svg viewBox="0 0 24 24" class="success-check size-7 flex-none" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path pathLength="1" d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+      <p class="text-base font-bold"><%= today_log ? today_log.message : "Great job!" %></p>
+      <% if local_assigns[:fresh] %>
+        <%# 達成の瞬間に、小さな光がふわっと広がる %>
+        <% 6.times do |i| %><span class="spark spark-<%= i + 1 %>" aria-hidden="true"></span><% end %>
+      <% end %>
     </div>
   <% else %>
     <% if local_assigns[:notice].present? %><p class="mt-4 rounded-2xl bg-amber-soft px-4 py-3 text-sm text-ink-body" role="status"><%= notice %></p><% end %>

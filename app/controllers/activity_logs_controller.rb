@@ -10,11 +10,13 @@ class ActivityLogsController < ApplicationController
 
     @log = ActivityLog.build_for(@routine, started_at: log_params[:started_at], actual_seconds: log_params[:actual_seconds])
     saved = ActivityLog.transaction do
-      @log.save && (@result = @routine.record_achieved!) || raise(ActiveRecord::Rollback)
+      @log.save && (@result = @routine.record_achieved!(fully: @log.completed_fully)) || raise(ActiveRecord::Rollback)
     end
 
     if saved
-      @notice = @result == :promoted ? "レベル#{@routine.current_level}に上がりました。続けてきた力です" : @log.message
+      @notice = @log.message
+      @fresh = true
+      @all_cleared = current_user.cleared_all_today?
       render_streams
     else
       @notice = "うまく記録できませんでした。もう一度ためしてください"

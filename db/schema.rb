@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_10_03_010000) do
+ActiveRecord::Schema[7.2].define(version: 2026_10_03_020000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -37,6 +37,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_10_03_010000) do
     t.boolean "achieved", default: true, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "completed_fully", default: true, null: false
     t.index ["routine_id", "recorded_on"], name: "index_routine_logs_on_routine_id_and_recorded_on", unique: true
     t.index ["routine_id"], name: "index_routine_logs_on_routine_id"
   end
@@ -61,6 +62,9 @@ ActiveRecord::Schema[7.2].define(version: 2026_10_03_010000) do
     t.string "last_name", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "level", default: 1, null: false
+    t.integer "rest_tickets", default: 2, null: false
+    t.date "rest_tickets_refilled_on"
     t.index ["email"], name: "index_users_on_email", unique: true
   end
 
@@ -75,8 +79,25 @@ ActiveRecord::Schema[7.2].define(version: 2026_10_03_010000) do
     t.index ["user_id"], name: "index_visions_on_user_id"
   end
 
+  create_table "weekly_reviews", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.date "week_start", null: false
+    t.integer "clear_days", null: false
+    t.string "outcome", null: false
+    t.integer "level_before", null: false
+    t.integer "level_after", null: false
+    t.datetime "acknowledged_at"
+    t.datetime "responded_at"
+    t.boolean "accepted"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id", "week_start"], name: "index_weekly_reviews_on_user_id_and_week_start", unique: true
+    t.index ["user_id"], name: "index_weekly_reviews_on_user_id"
+  end
+
   add_foreign_key "activity_logs", "users"
   add_foreign_key "routine_logs", "routines"
   add_foreign_key "routines", "users"
   add_foreign_key "visions", "users"
+  add_foreign_key "weekly_reviews", "users"
 end

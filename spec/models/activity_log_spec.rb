@@ -19,7 +19,7 @@ RSpec.describe ActivityLog, type: :model do
     log = build(started: now - 5.seconds, actual: 3)
     expect(log).to be_valid
     expect(log.completed_fully).to be false
-    expect(log.message).to eq "3秒もできました"
+    expect(log.message).to eq "3 sec counts. Nice start!"
   end
 
   it "rejects a timer record of zero seconds" do
@@ -45,6 +45,6 @@ RSpec.describe ActivityLog, type: :model do
     log = described_class.build_for(routine, now: now)
     expect(log).to be_valid
     expect(log).to have_attributes(kind: "check", actual_seconds: 0, completed_fully: true, target_seconds: nil)
-    expect(log.message).to eq "できました"
+    expect(log.message).to be_in(ActivityLog::SUCCESS_MESSAGES)
   end
 end

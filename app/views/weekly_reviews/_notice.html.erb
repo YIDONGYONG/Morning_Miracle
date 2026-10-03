@@ -1,0 +1,20 @@
+<%# 先週の振り返り。locals: review, user。ボタンは「一段階軽くする」だけ。それ以外は静かな文字リンク %>
+<section class="card card-amber rise space-y-3">
+  <% case review.outcome %>
+  <% when "promoted" %>
+    <h2 class="text-lg font-bold text-ink">レベルアップ！ レベル<%= review.level_before %> → <%= review.level_after %></h2>
+    <p class="leading-relaxed text-ink-muted">先週は、すべてできた日が<%= review.clear_days %>日ありました。毎朝の一歩が、ちゃんと積もっています。</p>
+    <%= button_to "OK", acknowledge_weekly_review_path(review), method: :post, class: "btn btn-secondary", form: { class: "contents" } %>
+  <% when "exempted" %>
+    <h2 class="text-lg font-bold text-ink">先週はお休みでしたね。大丈夫です。</h2>
+    <p class="leading-relaxed text-ink-muted">休み券を1枚使ったので、レベルはそのままです（残り<%= user.rest_tickets %>枚・毎月2枚に戻ります）。</p>
+    <%= button_to "OK", acknowledge_weekly_review_path(review), method: :post, class: "btn btn-secondary", form: { class: "contents" } %>
+  <% when "suggested" %>
+    <h2 class="text-lg font-bold text-ink">今週は、一段階軽くしてみませんか？</h2>
+    <p class="leading-relaxed text-ink-muted">先週は、すべてできた日がありませんでした。レベル<%= review.level_after %>に下げて、小さな一歩からまた始められます。このままでも大丈夫です。</p>
+    <div class="flex flex-wrap items-center gap-3">
+      <%= button_to "一段階軽くする", accept_weekly_review_path(review), method: :post, class: "btn btn-secondary", form: { class: "contents" } %>
+      <%= button_to "このままでいい", decline_weekly_review_path(review), method: :post, class: "topnav-link bg-transparent", form: { class: "contents" } %>
+    </div>
+  <% end %>
+</section>

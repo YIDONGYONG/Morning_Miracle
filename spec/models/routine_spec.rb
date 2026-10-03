@@ -9,24 +9,16 @@ RSpec.describe Routine, type: :model do
     expect(routine.goal).to eq "玄関の前に10秒立つ"
   end
 
-  it "promotes after 7 consecutive achievements and resets the streak" do
-    6.times { |i| routine.update!(last_recorded_on: Date.current - 1 - i); routine.record_achieved! }
-    expect(routine.current_level).to eq 1
-    routine.update!(last_recorded_on: Date.yesterday)
-    expect(routine.record_achieved!).to eq :promoted
-    expect(routine.reload).to have_attributes(current_level: 2, current_streak: 0)
-  end
-
-  it "does not exceed level 8" do
-    routine.update!(current_level: 8, current_streak: 6, last_recorded_on: Date.yesterday)
-    routine.record_achieved!
-    expect(routine.current_level).to eq 8
-  end
-
-  it "demotes after 3 consecutive misses" do
+  it "never changes the level by itself (levels move only via weekly review)" do
     routine.update!(current_level: 3)
-    3.times { |i| routine.update!(last_recorded_on: Date.current - 1 - i); routine.record_missed! }
-    expect(routine.reload).to have_attributes(current_level: 2, consecutive_misses: 0)
+    5.times { |i| routine.update!(last_recorded_on: Date.current - 1 - i); routine.record_missed! }
+    20.times { |i| routine.update!(last_recorded_on: Date.current - 1 - i); routine.record_achieved! }
+    expect(routine.reload.current_level).to eq 3
+  end
+
+  it "records whether the day was completed fully" do
+    routine.record_achieved!(fully: false)
+    expect(routine.logs.last).to have_attributes(achieved: true, completed_fully: false)
   end
 
   it "ignores a second record on the same day" do

@@ -1,0 +1,17 @@
+<%# 4つすべて達成したときの、画面中央のお祝い演出。花火ではなく「朝日が昇る」やさしい動き。タップか数秒で消える %>
+<div class="celebrate" data-controller="celebration" data-action="click->celebration#close" role="status">
+  <div class="celebrate-stage" aria-hidden="true">
+    <% 3.times do |i| %><span class="celebrate-ring celebrate-ring-<%= i + 1 %>"></span><% end %>
+    <svg viewBox="0 0 120 120" class="celebrate-sun">
+      <circle cx="60" cy="60" r="44" class="fill-brand-3" opacity="0.5"/>
+      <circle cx="60" cy="60" r="32" class="fill-brand"/>
+    </svg>
+    <% 12.times do |i| %>
+      <% angle = i * 30 * Math::PI / 180 %>
+      <span class="celebrate-spark celebrate-spark-<%= i % 3 %>"
+            style="--dx: <%= (Math.cos(angle) * 150).round %>px; --dy: <%= (Math.sin(angle) * 150).round %>px; --delay: <%= (i % 4) * 0.08 %>s"></span>
+    <% end %>
+  </div>
+  <p class="celebrate-title">All Clear!</p>
+  <p class="celebrate-sub">Beautiful morning, beautiful you.</p>
+</div>

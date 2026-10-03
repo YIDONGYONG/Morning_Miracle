@@ -17,10 +17,11 @@ RSpec.describe HomePresenter do
   it "marks gaps after the first record as rest days, not empty" do
     log(5)
     states = described_class.new(user, now: now).garden.map(&:state)
-    expect(states.last).to eq :today
-    expect(states[-6]).to eq :grown
-    expect(states[-3]).to eq :rest
-    expect(states.first).to eq :empty
+    expect(states.size).to eq 14
+    expect(states.first).to eq :grown     # 1日目は左上
+    expect(states[1..4]).to all(eq :rest) # 達成しなかった日は「休んだ日」
+    expect(states[5]).to eq :today
+    expect(states.last).to eq :empty      # まだ来ていない日
   end
 
   it "shows the returning card only after a few days away" do

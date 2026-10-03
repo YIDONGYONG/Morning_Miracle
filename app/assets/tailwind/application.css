@@ -71,13 +71,13 @@
 @layer components {
   /* ---------- ページ骨格 ---------- */
   /* ヘッダー(.hero/.cover) + 本体(.page-body) の縦積み。モバイルは下部タブ分の余白を確保 */
-  .page { @apply pb-24 md:pb-10; }
-  .hero { @apply rounded-b-hero bg-linear-to-b from-dawn-peach via-dawn-yellow to-dawn-lavender px-6 pt-10 pb-24 text-ink md:px-8 md:pt-12; }
+  .page { padding-bottom: calc(5.5rem + env(safe-area-inset-bottom)); @apply md:pb-10; }
+  .hero { @apply rounded-b-hero bg-linear-to-b from-dawn-peach via-dawn-yellow to-dawn-lavender px-6 pt-6 pb-14 text-ink md:px-8 md:pt-12 md:pb-24; }
   .hero-inner, .page-body { @apply mx-auto max-w-5xl; }
-  .hero-title { @apply text-3xl leading-normal font-bold tracking-tight md:text-5xl; }
+  .hero-title { @apply text-2xl leading-normal font-bold tracking-tight md:text-5xl; }
   .hero-lead { @apply mt-2 text-sm leading-relaxed text-ink-muted; }
   /* ヘッダーに重ねて表示する本体（カードがヘッダーに食い込む） */
-  .page-body { @apply relative -mt-14 px-5 md:px-8; }
+  .page-body { @apply relative -mt-10 px-5 md:-mt-14 md:px-8; }
   /* 画像ヘッダー。画像が読み込めなくてもグラデーションで高さを保つ */
   .cover { @apply max-h-88 min-h-44 h-[35vh] overflow-hidden rounded-b-hero bg-linear-to-b from-dawn-peach via-dawn-yellow to-dawn-lavender md:h-[30vh]; }
 
@@ -108,8 +108,8 @@
   /* ---------- ナビゲーション ---------- */
   .topnav-link { @apply text-sm font-bold text-ink-muted transition hover:text-sage-deep; }
   .topnav-link-active { @apply text-sage-deep; }
-  .tabbar { @apply fixed inset-x-0 bottom-0 z-40 flex justify-around rounded-t-card bg-card pt-2 pb-3 shadow-[0_-6px_24px_rgb(120_90_60/0.07)] md:hidden; }
-  .tab { @apply flex min-w-16 cursor-pointer flex-col items-center gap-0.5 rounded-2xl border-0 bg-transparent px-3 py-1.5 text-xs text-ink-faint no-underline; }
+  .tabbar { padding-bottom: max(0.5rem, env(safe-area-inset-bottom)); @apply fixed inset-x-0 bottom-0 z-40 flex justify-around rounded-t-card bg-card pt-1.5 shadow-[0_-6px_24px_rgb(120_90_60/0.07)] md:hidden; }
+  .tab { @apply flex min-w-16 cursor-pointer flex-col items-center gap-0.5 rounded-2xl border-0 bg-transparent px-3 py-1 text-xs text-ink-faint no-underline; }
   .tab svg { @apply size-5.5; }
   .tab-active { @apply rounded-2xl bg-sage-tint font-bold text-sage-deep; }
 
@@ -162,4 +162,58 @@
   .ring-done .ring-progress { stroke: var(--color-sage); }
   .ring-label { @apply absolute inset-0 flex flex-col items-center justify-center; }
   @media (prefers-reduced-motion: reduce) { .ring-progress { transition: none; } }
+
+  /* ---------- 達成の演出（やさしく、でも「やった！」と感じる動き） ---------- */
+  .success { @apply relative flex items-center gap-3 rounded-2xl bg-sage-tint px-4 py-3 text-sage-deep; }
+  .success-check path { stroke-dasharray: 1; stroke-dashoffset: 0; }
+  .success-fresh { animation: success-pop 0.9s var(--ease-calm) both; }
+  .success-fresh .success-check path { animation: check-draw 0.6s 0.25s var(--ease-calm) both; }
+  .card-celebrate { animation: card-lift 0.9s var(--ease-calm) both; }
+  @keyframes success-pop {
+    0% { transform: scale(0.9); opacity: 0; box-shadow: 0 0 0 0 rgb(141 174 136 / 0.55); }
+    55% { transform: scale(1.04); opacity: 1; box-shadow: 0 0 0 16px rgb(141 174 136 / 0); }
+    100% { transform: none; box-shadow: 0 0 0 0 rgb(141 174 136 / 0); }
+  }
+  @keyframes check-draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+  @keyframes card-lift { 0% { transform: none; } 40% { transform: translateY(-4px) scale(1.01); } 100% { transform: none; } }
+  /* 小さな光が、チェックの周りからふわっと広がる */
+  .spark { @apply pointer-events-none absolute left-7 top-1/2 size-1.5 rounded-full bg-brand opacity-0; animation: spark 1.1s 0.3s ease-out both; }
+  .spark-2, .spark-5 { @apply bg-sage; }
+  .spark-3, .spark-6 { @apply bg-brand-3; }
+  .spark-1 { --dx: -18px; --dy: -26px; }
+  .spark-2 { --dx: 6px; --dy: -32px; }
+  .spark-3 { --dx: 30px; --dy: -22px; }
+  .spark-4 { --dx: -26px; --dy: 18px; }
+  .spark-5 { --dx: 4px; --dy: 30px; }
+  .spark-6 { --dx: 32px; --dy: 16px; }
+  @keyframes spark {
+    0% { opacity: 0; transform: translate(0, 0) scale(0.4); }
+    30% { opacity: 1; }
+    100% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(1); }
+  }
+
+  /* ---------- 4つ全部達成: 画面中央のお祝い（朝日が昇り、光の輪が広がる） ---------- */
+  .celebrate { @apply fixed inset-0 z-50 flex cursor-pointer flex-col items-center justify-center bg-canvas/80 px-6 text-center backdrop-blur-sm; animation: celebrate-fade 4.2s ease both; }
+  .celebrate-stage { @apply relative grid size-40 place-items-center; }
+  .celebrate-sun { @apply relative size-36; animation: sun-rise 1.4s var(--ease-calm) both; }
+  .celebrate-ring { @apply absolute inset-0 rounded-full border-2 border-brand opacity-0; animation: ring-out 2.2s ease-out infinite; }
+  .celebrate-ring-2 { animation-delay: 0.6s; }
+  .celebrate-ring-3 { animation-delay: 1.2s; }
+  .celebrate-spark { @apply absolute left-1/2 top-1/2 size-2 -translate-1/2 rounded-full bg-brand opacity-0; animation: celebrate-spark 1.8s var(--delay, 0s) ease-out infinite; }
+  .celebrate-spark-1 { @apply bg-sage; }
+  .celebrate-spark-2 { @apply bg-brand-3; }
+  .celebrate-title { @apply mt-10 text-4xl font-bold tracking-tight text-ink; animation: rise 1s 0.5s var(--ease-calm) both; }
+  .celebrate-sub { @apply mt-2 text-base text-ink-muted; animation: rise 1s 0.8s var(--ease-calm) both; }
+  @keyframes celebrate-fade { 0% { opacity: 0; } 8% { opacity: 1; } 82% { opacity: 1; } 100% { opacity: 0; } }
+  @keyframes sun-rise { from { opacity: 0; transform: translateY(48px) scale(0.6); } to { opacity: 1; transform: none; } }
+  @keyframes ring-out { 0% { opacity: 0.7; transform: scale(0.7); } 100% { opacity: 0; transform: scale(2.6); } }
+  @keyframes celebrate-spark {
+    0% { opacity: 0; transform: translate(-50%, -50%) scale(0.4); }
+    25% { opacity: 1; }
+    100% { opacity: 0; transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(1); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .success-fresh, .success-fresh .success-check path, .card-celebrate, .spark, .celebrate-ring, .celebrate-spark, .celebrate-sun { animation: none; }
+    .spark, .celebrate-ring, .celebrate-spark { display: none; }
+  }
 }

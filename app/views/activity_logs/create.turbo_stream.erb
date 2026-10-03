@@ -1,3 +1,7 @@
 <%= turbo_stream.replace dom_id(@routine), partial: "routines/routine",
-      locals: { routine: @routine, today_log: @today_logs[@routine.category], notice: @notice } %>
+      locals: { routine: @routine, today_log: @today_logs[@routine.category], notice: @notice, fresh: @fresh } %>
 <%= turbo_stream.update "mornings_count", current_user.mornings_count %>
+<%# 4つすべて達成した瞬間だけ、画面中央にお祝いの演出を出す %>
+<% if @all_cleared %>
+  <%= turbo_stream.update "celebration", partial: "routines/celebration" %>
+<% end %>

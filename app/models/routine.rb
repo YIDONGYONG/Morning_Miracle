@@ -1,8 +1,7 @@
 class Routine < ApplicationRecord
   # 最大レベル
   MAX_LEVEL = 8
-  PROMOTE_STREAK = 7   # 連続達成がこの日数に達したら昇格
-  DEMOTE_MISSES = 3    # 連続未達成がこの日数に達したら降格
+  # レベルの上げ下げはここでは行わない（週ごとの判定: WeeklyEvaluator と User#change_level!）
 
   belongs_to :user
   has_many :logs, class_name: "RoutineLog", dependent: :destroy
@@ -66,48 +65,28 @@ class Routine < ApplicationRecord
   def max_level? = current_level >= MAX_LEVEL
   def recorded_today? = last_recorded_on == Date.current
 
-  # 今日の達成を記録。ストリークが基準に達したら自動昇格。:promoted / :recorded / nil(記録済み)
-  def record_achieved!
+  # 今日の達成を記録する。fully=false は「途中でやめた」(できた分は認めるが、週のクリア日には数えない)。:recorded / nil(記録済み)
+  def record_achieved!(fully: true)
     return if recorded_today?
 
-    self.current_streak += 1
-    self.consecutive_misses = 0
-    self.last_recorded_on = Date.current
-    result = :recorded
-    if current_streak >= PROMOTE_STREAK && !max_level?
-      self.current_level += 1
-      self.current_streak = 0
-      result = :promoted
-    end
-    save!
-    write_log!(true)
-    result
+    update!(last_recorded_on: Date.current)
+    write_log!(true, fully: fully)
+    :recorded
   end
 
-  # 今日の未達成を記録。連続で基準に達したら自動降格。:demoted / :recorded / nil(記録済み)
+  # 「今日は休む」を記録する。レベルは下がらない。:recorded / nil(記録済み)
   def record_missed!
     return if recorded_today?
 
-    self.current_streak = 0
-    self.consecutive_misses += 1
-    self.last_recorded_on = Date.current
-    result = :recorded
-    if consecutive_misses >= DEMOTE_MISSES
-      self.consecutive_misses = 0
-      if current_level > 1
-        self.current_level -= 1
-        result = :demoted
-      end
-    end
-    save!
-    write_log!(false)
-    result
+    update!(last_recorded_on: Date.current)
+    write_log!(false, fully: false)
+    :recorded
   end
 
   private
 
   # 今日の記録を1件だけ保存する（同じ日に再記録されても重複させない）
-  def write_log!(achieved)
-    logs.find_or_initialize_by(recorded_on: Date.current).update!(achieved: achieved)
+  def write_log!(achieved, fully:)
+    logs.find_or_initialize_by(recorded_on: Date.current).update!(achieved: achieved, completed_fully: fully)
   end
 end

@@ -1,7 +1,7 @@
 # ホーム画面（今日）の表示データをまとめる。
 # 「積み上げた朝」は減らない累計、休んだ日は空白ではなく「休んだ日」として扱う。
 class HomePresenter
-  GARDEN_DAYS = 28        # 庭に表示する日数（7列 × 4週）
+  GARDEN_DAYS = 14        # 庭に表示する日数（7列 × 2週間。昇格までの2週間と同じ）
   RETURN_AFTER_DAYS = 2   # この日数以上あいたら「また始める」カードを出す
   EVENING_FROM_HOUR = 18  # 「明日の私へ」を出し始める時刻
   MOODS = { "light" => "軽め", "normal" => "普通", "strong" => "元気" }.freeze
@@ -62,16 +62,25 @@ class HomePresenter
   # ---- 積み上げた朝 ----
   def total_mornings = achieved_dates.size
 
+  # 最初の記録日を1日目として14日ごとに区切り、いまの2週間の開始日を返す（記録がなければ今日）
+  def garden_start
+    first = log_dates.min
+    return today unless first
+
+    first + ((today - first).to_i / GARDEN_DAYS) * GARDEN_DAYS
+  end
+
+  # 1日目を左上として、左→右・上→下の時系列で並べる。過ぎた日で達成していなければ「休んだ日」、先の日は空き
   def garden
     @garden ||= begin
-      start = log_dates.min
+      start = garden_start
       ordinal = achieved_dates.sort.each_with_index.to_h
-      ((today - GARDEN_DAYS + 1)..today).map do |date|
+      (start...(start + GARDEN_DAYS)).map do |date|
         if achieved_dates.include?(date)
           Cell.new(date: date, state: :grown, stage: stage_for(ordinal[date]))
         elsif date == today
           Cell.new(date: date, state: :today)
-        elsif start && date >= start
+        elsif date < today
           Cell.new(date: date, state: :rest)
         else
           Cell.new(date: date, state: :empty)
@@ -86,6 +95,13 @@ class HomePresenter
   def returning?
     last_achieved_on.present? && !achieved_dates.include?(today) && (today - last_achieved_on) >= RETURN_AFTER_DAYS
   end
+
+  # ---- 週ごとの振り返り ----
+  # 返事待ちの提案、または未確認のお知らせ（なければ nil）
+  def review = @review ||= @user.weekly_reviews.pending.order(:week_start).last
+  # 今週、始めた全ルーティンを最後までやれた日数
+  def week_clear_days = @week_clear_days ||= @user.clear_days(today.beginning_of_week..today)
+  def promote_days = WeeklyReview::PROMOTE_CLEAR_DAYS
 
   # ---- 希望の根拠 ----
   def this_week = count_between(today - 6, today)

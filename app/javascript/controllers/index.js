@@ -12,3 +12,6 @@ application.register("hello", HelloController)
 
 import RingTimerController from "./ring_timer_controller"
 application.register("ring-timer", RingTimerController)
+
+import CelebrationController from "./celebration_controller"
+application.register("celebration", CelebrationController)

@@ -77,7 +77,7 @@ export default class extends Controller {
     this.state = "finished"
     this.hideButtons()
     this.render()
-    this.announce(`${this.duration(elapsed)}もできました`)
+    this.announce(`${this.durationEn(elapsed)} counts. Nice start!`)
     this.submit(elapsed)
   }
 
@@ -133,7 +133,7 @@ export default class extends Controller {
     this.state = "finished"
     this.face().classList.add("ring-done") // リングがセージ色に変わる
     this.hideButtons()
-    this.announce("できました")
+    this.announce("Well done!")
     this.releaseWakeLock()
     this.notify([200, 100, 200], 1.2)
     this.submit(this.secondsValue)
@@ -176,6 +176,12 @@ export default class extends Controller {
     const m = Math.floor(seconds / 60), s = seconds % 60
     if (m === 0) return `${s}秒`
     return s === 0 ? `${m}分` : `${m}分${s}秒`
+  }
+
+  durationEn(seconds) {
+    const m = Math.floor(seconds / 60), s = seconds % 60
+    if (m === 0) return `${s} sec`
+    return s === 0 ? `${m} min` : `${m} min ${s} sec`
   }
 
   // タブが隠れて戻ったとき、経過時間を時計から計算し直す

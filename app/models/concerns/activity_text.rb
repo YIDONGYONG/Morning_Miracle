@@ -13,6 +13,14 @@ module ActivityText
     rest.zero? ? "#{minutes}分" : "#{minutes}分#{rest}秒"
   end
 
+  # 英語表記(成功メッセージ用): 「3 sec」「2 min 10 sec」
+  def duration_en(seconds)
+    minutes, rest = seconds.to_i.divmod(60)
+    return "#{rest} sec" if minutes.zero?
+
+    rest.zero? ? "#{minutes} min" : "#{minutes} min #{rest} sec"
+  end
+
   def value(activity)
     case activity[:kind]
     when :timer then duration(activity[:seconds])

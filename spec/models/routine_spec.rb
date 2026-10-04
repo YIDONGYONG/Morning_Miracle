@@ -45,3 +45,13 @@ RSpec.describe Routine, "activity definitions" do
     expect(Routine.new(category: :planning, current_level: 8).goal).to eq "一日のスケジュール完成 (5分)"
   end
 end
+
+RSpec.describe Routine, "#timer_seconds" do
+  let(:user) { User.create!(email: "ts@example.com", password: "pass", first_name: "a", last_name: "b") }
+
+  it "uses the level definition (DEBUG_TIMER_SECONDS is for development only)" do
+    routine = user.routines.create!(category: :exercise, current_level: 6) # ジョギング 10分
+    expect(routine.timer_seconds).to eq(Routine::DEBUG_TIMER_SECONDS || 600)
+    expect(routine.activity[:seconds]).to eq 600
+  end
+end

@@ -10,13 +10,15 @@
     <%= javascript_include_tag "application", "data-turbo-track": "reload", defer: true %>
   </head>
 
-  <body class="bg-canvas text-ink-body antialiased">
+  <body class="bg-canvas text-ink-body antialiased"<%= " data-user-id=#{current_user.id}".html_safe if logged_in? %>>
     <%# PC: 上部ナビ / モバイル(ログイン時): 下部タブ。ナビは画面幅で出し分ける %>
     <%= render "shared/navbar" %>
     <%= render "shared/flash_message" %>
 
     <%= yield %>
 
+    <%# 進行中のタイマーを、どの画面でも小さく表示する（タップでルーティンへ） %>
+    <%= render "shared/timer_badge" if logged_in? %>
     <%= render "shared/tabbar" if logged_in? %>
     <%= render "shared/footer" %>
   </body>

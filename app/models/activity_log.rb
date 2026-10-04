@@ -1,7 +1,7 @@
 # ルーティンを1回行った記録。「失敗」は存在せず、途中でやめても実際にできた時間を認める。
 # 目標時間・種類・レベルは必ずサーバー側の定義(Routine::LEVELS)から決め、クライアントの値は信用しない。
 class ActivityLog < ApplicationRecord
-  MAX_ELAPSED = 2.hours      # 開始から完了までの許容上限（一時停止を含む）
+  MAX_ELAPSED = 24.hours     # 開始から完了までの許容上限（一時停止・アプリを閉じていた時間を含む）
   CLOCK_TOLERANCE = 5.seconds # 端末の時計とのずれの許容
 
   belongs_to :user
@@ -25,7 +25,7 @@ class ActivityLog < ApplicationRecord
     log = new(user: routine.user, level: routine.current_level, activity_key: routine.category,
               kind: activity[:kind], completed_at: now)
     if log.kind_timer?
-      log.target_seconds = activity[:seconds]
+      log.target_seconds = routine.timer_seconds
       log.started_at = parse_time(started_at)
       log.actual_seconds = actual_seconds.to_i
       log.completed_fully = log.actual_seconds >= log.target_seconds

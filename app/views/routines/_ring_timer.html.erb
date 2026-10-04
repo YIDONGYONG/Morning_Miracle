@@ -1,10 +1,13 @@
 <%# 円形のリングタイマー（kind: :timer）。動きは ring_timer_controller.js。locals: routine, seconds
     状態: 待機(空のリング + はじめる) → 進行中(リングが時計回りに満ちる) → 完了(セージ色 + できました) %>
-<% pauseable = seconds >= 300 %>
+<% pauseable = local_assigns.fetch(:pauseable, seconds >= 300) %>
 <div class="mt-4 flex flex-col items-center gap-3 text-center"
      data-controller="ring-timer"
      data-ring-timer-seconds-value="<%= seconds %>"
-     data-ring-timer-pauseable-value="<%= pauseable %>">
+     data-ring-timer-pauseable-value="<%= pauseable %>"
+     data-ring-timer-activity-key-value="<%= routine.category %>"
+     data-ring-timer-label-value="<%= routine.category_label %>"
+     data-ring-timer-anchor-value="<%= dom_id(routine) %>">
 
   <div class="ring" data-ring-timer-target="face">
     <svg viewBox="0 0 120 120" class="size-full" aria-hidden="true">
@@ -26,6 +29,8 @@
       <button type="button" class="btn btn-secondary hidden" data-ring-timer-target="pauseButton" data-action="ring-timer#togglePause">一時停止</button>
     <% end %>
     <button type="button" class="btn btn-secondary hidden" data-ring-timer-target="stopButton" data-action="ring-timer#stop">ここまででOK</button>
+    <%# 送ったのに記録されなかったとき(通信の失敗など)だけ表示される。タイマーの結果は消えない %>
+    <button type="button" class="btn btn-secondary hidden" data-ring-timer-target="retryButton" data-action="ring-timer#retry">もう一度送る</button>
   </div>
 
   <%# 完了・中断時にこのフォームを Turbo で送る（CSRF トークンは form_with が入れる）。送る値は開始時刻と「できた秒数」だけで、サーバー側で検証する %>

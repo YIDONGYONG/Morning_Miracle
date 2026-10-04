@@ -1,0 +1,8 @@
+<%# 進行中のタイマーのミニバッジ。表示・非表示と時間は timer_badge_controller.js が決める（ルーティン画面では隠れる） %>
+<a href="<%= routines_path %>" id="timer_badge" class="timer-badge hidden"
+   data-controller="timer-badge" data-timer-badge-routines-path-value="<%= routines_path %>"
+   aria-label="進行中のタイマー">
+  <span class="timer-badge-dot" aria-hidden="true"></span>
+  <span data-timer-badge-target="label"></span>
+  <span class="font-bold tabular-nums" data-timer-badge-target="time"></span>
+</a>

@@ -1,6 +1,9 @@
 class Routine < ApplicationRecord
   # 最大レベル
   MAX_LEVEL = 8
+  # 開発・検証用: 環境変数 DEBUG_TIMER_SECONDS=10 のように指定すると、全タイマーをその秒数にできる(本番では無視)
+  DEBUG_TIMER_SECONDS = (ENV["DEBUG_TIMER_SECONDS"].to_i if ENV["DEBUG_TIMER_SECONDS"].present? && !Rails.env.production?)
+
   # レベルの上げ下げはここでは行わない（週ごとの判定: WeeklyEvaluator と User#change_level!）
 
   belongs_to :user
@@ -62,6 +65,8 @@ class Routine < ApplicationRecord
   def activity(level = current_level) = level_data(level)[category.to_sym]
   def goal(level = current_level) = ActivityText.text(activity(level))
   def concept = level_data[:concept]
+  # タイマーの実際の長さ(秒)。サーバーの検証(ActivityLog)と画面の両方がこの値を使う
+  def timer_seconds = DEBUG_TIMER_SECONDS || activity[:seconds]
   def max_level? = current_level >= MAX_LEVEL
   def recorded_today? = last_recorded_on == Date.current
 

@@ -1,34 +1,38 @@
 import { Controller } from "@hotwired/stimulus"
+import * as M from "../timer/timer_math.mjs"
+import { timerStore } from "../timer/timer_store.js"
+import { ensurePermission } from "../timer/notifier.js"
 
-// 円形リングタイマー。待機 → 進行中 → 完了(または「ここまででOK」で終了)。
-// 経過時間は setInterval で1秒ずつ引かず、開始時刻との差で毎回計算する(タブが隠れてもずれない)。
-// 描画は requestAnimationFrame、タブが隠れて止まる間は setTimeout と visibilitychange で補う。
-// 終わる少し前(長さに応じて3〜10秒前)と完了のときに、やさしい音と振動で自動的に知らせる。
-// 完了・中断すると、フォーム(開始時刻 + できた秒数)を Turbo で送り、カードがサーバー側の表示に差し替わる。
+// 円形リングタイマーの「見た目」担当。時間の状態そのものは timerStore(localStorage に保存)が持つので、
+// 画面を移動しても、リロードしても、アプリを閉じて開き直しても、正しい残り時間から続きを描く。
+// 経過時間は、開始時刻との差(endAt - 現在時刻)で毎回計算する。1秒ずつ引く方式は使わない。
+// 描画は requestAnimationFrame、隠れたタブで止まる間は setTimeout と visibilitychange で補う。
+// 終わった(または「ここまででOK」)ら、開始時刻と「できた秒数」を Turbo のフォームで送る。
 const RADIUS = 54
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS
 const WARN_BEFORE_SECONDS = (total) => (total >= 60 ? 10 : 3) // 終わる何秒前に知らせるか
+const RETRY_SHOWN_AFTER_MS = 4000 // 送ったのにカードが差し替わらないとき、再送ボタンを出すまでの時間
 
 export default class extends Controller {
-  static targets = ["face", "ring", "remaining", "percent", "status",
-                    "startButton", "pauseButton", "stopButton", "form", "startedAt", "actualSeconds"]
-  static values = { seconds: Number, pauseable: Boolean }
+  static targets = ["face", "ring", "remaining", "percent", "status", "startButton", "pauseButton", "stopButton",
+                    "retryButton", "form", "startedAt", "actualSeconds"]
+  static values = { seconds: Number, pauseable: Boolean, activityKey: String, label: String, anchor: String }
 
   connect() {
-    this.state = "idle"            // idle / running / paused / finished
-    this.elapsedBefore = 0         // 一時停止までに進んだ時間(ms)
-    this.runStartedAt = null       // いまの再生を始めた時刻(ms)
-    this.warned = false            // 「もうすぐ終わり」を知らせたか
+    this.warned = false
+    this.model = null
     this.reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches
     this.ringTarget.style.strokeDasharray = CIRCUMFERENCE
-    this.ringTarget.style.strokeDashoffset = CIRCUMFERENCE
     this.onVisibility = this.onVisibility.bind(this)
     document.addEventListener("visibilitychange", this.onVisibility)
+    this.unsubscribe = timerStore.subscribe(() => this.sync())
+    this.sync({ restored: true })
   }
 
-  // Turbo のページ移動でも、タイマー・アニメーション・画面ロックを必ず片付ける
+  // Turbo のページ移動でも、リスナー・タイマー・アニメーション・画面ロックを必ず片付ける(状態そのものは残す)
   disconnect() {
     this.clearTimers()
+    this.unsubscribe?.()
     this.releaseWakeLock()
     document.removeEventListener("visibilitychange", this.onVisibility)
     if (this.audio) { this.audio.close?.(); this.audio = null }
@@ -36,67 +40,120 @@ export default class extends Controller {
 
   // ---- 操作 ----
   start() {
-    if (this.state !== "idle") return
-    this.prepareAudio() // 音は、ユーザーのタップの中で準備する(ブラウザの自動再生制限のため)
-    this.startedAtIso = new Date().toISOString()
-    this.runStartedAt = Date.now()
-    this.state = "running"
-    this.startButtonTarget.classList.add("hidden")
-    this.stopButtonTarget.classList.remove("hidden")
-    if (this.hasPauseButtonTarget) this.pauseButtonTarget.classList.remove("hidden")
-    this.announce("はじまりました")
-    this.requestWakeLock()
-    this.tick()
+    ensurePermission() // 完了通知の許可は、ユーザーのタップの中で求める
+    this.prepareAudio() // 音も、タップの中で準備する(ブラウザの自動再生制限のため)
+    // 連打・複数タブでも、タイマーは1つだけ(すでにあれば作らず、いまの状態に合わせるだけ)
+    const result = timerStore.start({
+      activityKey: this.activityKeyValue, label: this.labelValue, anchor: this.anchorValue, totalMs: this.secondsValue * 1000
+    })
+    if (result.ok) this.announce("はじまりました")
+    this.sync()
   }
 
   togglePause() {
-    if (this.state === "running") {
-      this.elapsedBefore = this.elapsedMs()
-      this.runStartedAt = null
-      this.state = "paused"
-      this.clearTimers()
-      this.releaseWakeLock()
-      this.pauseButtonTarget.textContent = "つづける"
-      this.render()
-    } else if (this.state === "paused") {
-      this.runStartedAt = Date.now()
-      this.state = "running"
-      this.pauseButtonTarget.textContent = "一時停止"
-      this.requestWakeLock()
-      this.tick()
-    }
+    if (this.model?.status === "running") timerStore.pause()
+    else if (this.model?.status === "paused") timerStore.resume()
+    this.sync()
   }
 
   // 途中でやめても、できた分をそのまま認める
   stop() {
-    if (this.state !== "running" && this.state !== "paused") return
-    const elapsed = Math.min(Math.floor(this.elapsedMs() / 1000), this.secondsValue)
+    if (!this.model || this.model.status === "finished") return
+    const stopped = timerStore.stop()
+    if (!stopped) { timerStore.clear(this.activityKeyValue); return this.sync() } // 1秒未満は記録せず待機に戻す
+    this.announce(`${this.durationEn(M.actualSeconds(stopped))} counts. Nice start!`)
+    this.sync()
+  }
+
+  // 送信に失敗したときの「もう一度送る」
+  retry() {
+    this.retryButtonTarget.classList.add("hidden")
+    this.submitIfNeeded(true)
+  }
+
+  // ---- ストアの状態を画面に反映する ----
+  sync({ restored = false } = {}) {
+    const state = timerStore.current()
+    const mine = state && state.activityKey === this.activityKeyValue ? state : null
+    this.model = mine
+    this.otherActive = Boolean(state && !mine) // 別のルーティンのタイマーが進行中
+
+    if (!mine) return this.renderIdle()
+
+    if (mine.status === "finished") return this.renderFinished(restored)
+    this.renderActive()
+  }
+
+  renderIdle() {
     this.clearTimers()
     this.releaseWakeLock()
-    if (elapsed < 1) return this.reset() // 1秒未満は記録するものがないので、そっと待機に戻す
-    this.state = "finished"
+    this.face().classList.remove("ring-done")
+    this.ringTarget.style.strokeDashoffset = CIRCUMFERENCE
+    this.setRemaining(this.secondsValue)
+    this.percentTarget.textContent = "0"
+    this.stopButtonTarget.classList.add("hidden")
+    this.retryButtonTarget.classList.add("hidden")
+    if (this.hasPauseButtonTarget) this.pauseButtonTarget.classList.add("hidden")
+    this.startButtonTarget.classList.remove("hidden")
+    // 別のタイマーが進行中なら、2つ目は始められない
+    this.startButtonTarget.disabled = this.otherActive
+    this.startButtonTarget.textContent = this.otherActive ? "別のタイマーが進行中です" : "はじめる"
+    this.statusTarget.textContent = ""
+  }
+
+  renderActive() {
+    const s = this.model
+    this.face().classList.remove("ring-done")
+    this.startButtonTarget.classList.add("hidden")
+    this.stopButtonTarget.classList.remove("hidden")
+    this.retryButtonTarget.classList.add("hidden")
+    if (this.hasPauseButtonTarget) {
+      this.pauseButtonTarget.classList.remove("hidden")
+      this.pauseButtonTarget.textContent = s.status === "paused" ? "つづける" : "一時停止"
+    }
+    if (!this.warned && M.remainingMs(s, Date.now()) / 1000 <= WARN_BEFORE_SECONDS(this.secondsValue)) this.warned = true // 復元時は鳴らさない
+    this.render()
+    if (s.status === "running") {
+      this.requestWakeLock()
+      this.tick()
+    } else {
+      this.clearTimers()
+      this.releaseWakeLock()
+    }
+  }
+
+  renderFinished(restored) {
+    this.clearTimers()
+    this.releaseWakeLock()
+    const s = this.model
     this.hideButtons()
     this.render()
-    this.announce(`${this.durationEn(elapsed)} counts. Nice start!`)
-    this.submit(elapsed)
+    if (s.finishedKind === "complete") {
+      this.face().classList.add("ring-done") // リングがセージ色に変わる
+      this.announce("Well done!")
+    } else {
+      this.announce(`${this.durationEn(M.actualSeconds(s))} counts. Nice start!`)
+    }
+    this.submitIfNeeded(false, restored)
   }
 
   // ---- 時間の計算と描画 ----
-  elapsedMs() {
-    return this.elapsedBefore + (this.runStartedAt ? Date.now() - this.runStartedAt : 0)
-  }
-
   tick() {
     this.clearTimers()
-    if (this.state !== "running") return
+    const { state, justFinished } = timerStore.settle()
+    this.model = state && state.activityKey === this.activityKeyValue ? state : this.model
+    if (justFinished) {
+      this.notifyDevice([200, 100, 200], 1.2) // 振動と音(通知は timerStore が一度だけ出す)
+      return this.sync()
+    }
+    if (!this.model || this.model.status !== "running") return this.sync()
     this.render()
-    if (this.elapsedMs() >= this.secondsValue * 1000) return this.complete()
     this.warnIfNeeded()
     this.schedule()
   }
 
   schedule() {
-    const remainingMs = this.secondsValue * 1000 - this.elapsedMs()
+    const remainingMs = M.remainingMs(this.model, Date.now())
     // 終了の瞬間に確実に呼ぶ(タブが隠れていても)
     this.endTimeout = setTimeout(() => this.tick(), remainingMs + 20)
     if (!this.warned) {
@@ -116,49 +173,47 @@ export default class extends Controller {
     clearTimeout(this.timeout)
     clearTimeout(this.endTimeout)
     clearTimeout(this.warnTimeout)
-    this.raf = this.timeout = this.endTimeout = this.warnTimeout = null
+    clearTimeout(this.retryTimeout)
+    this.raf = this.timeout = this.endTimeout = this.warnTimeout = this.retryTimeout = null
   }
 
   render() {
-    const total = this.secondsValue
-    const fraction = Math.min(this.elapsedMs() / (total * 1000), 1)
+    const s = this.model
+    const total = s.totalMs
+    const now = Date.now()
+    const elapsed = M.elapsedMs(s, now)
+    const fraction = Math.min(elapsed / total, 1)
     this.ringTarget.style.strokeDashoffset = CIRCUMFERENCE * (1 - fraction)
-    const remaining = Math.max(Math.ceil(total - this.elapsedMs() / 1000), 0)
-    this.remainingTarget.textContent = remaining < 60 ? String(remaining)
-      : `${Math.floor(remaining / 60)}:${String(remaining % 60).padStart(2, "0")}`
+    this.setRemaining(s.status === "finished" ? 0 : Math.max(Math.ceil(M.remainingMs(s, now) / 1000), 0))
     this.percentTarget.textContent = Math.floor(fraction * 100)
   }
 
-  complete() {
-    this.state = "finished"
-    this.face().classList.add("ring-done") // リングがセージ色に変わる
-    this.hideButtons()
-    this.announce("Well done!")
-    this.releaseWakeLock()
-    this.notify([200, 100, 200], 1.2)
-    this.submit(this.secondsValue)
-  }
-
-  reset() {
-    this.state = "idle"
-    this.elapsedBefore = 0
-    this.runStartedAt = null
-    this.warned = false
-    this.ringTarget.style.strokeDashoffset = CIRCUMFERENCE
-    this.remainingTarget.textContent = this.secondsValue < 60 ? String(this.secondsValue)
-      : `${Math.floor(this.secondsValue / 60)}:${String(this.secondsValue % 60).padStart(2, "0")}`
-    this.percentTarget.textContent = "0"
-    this.stopButtonTarget.classList.add("hidden")
-    if (this.hasPauseButtonTarget) this.pauseButtonTarget.classList.add("hidden")
-    this.startButtonTarget.classList.remove("hidden")
-    this.statusTarget.textContent = ""
+  setRemaining(seconds) {
+    this.remainingTarget.textContent = seconds < 60 ? String(seconds)
+      : `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}`
   }
 
   // ---- 送信(サーバーが開始時刻と経過時間を検証する) ----
-  submit(actualSeconds) {
-    this.startedAtTarget.value = this.startedAtIso
-    this.actualSecondsTarget.value = actualSeconds
+  // 終わっていて、まだ送っていない(または他のタブが送っていない)ときだけ送る。失敗したら再送ボタンを出す
+  submitIfNeeded(force = false) {
+    const claimed = force ? this.claimForced() : timerStore.claimSubmit()
+    if (!claimed) return this.scheduleRetryButton()
+    this.startedAtTarget.value = claimed.startedAtIso
+    this.actualSecondsTarget.value = M.actualSeconds(claimed)
     this.formTarget.requestSubmit()
+    this.scheduleRetryButton()
+  }
+
+  claimForced() {
+    const s = timerStore.current()
+    if (!s || s.status !== "finished") return null
+    return s
+  }
+
+  // 送信後も、このカードが差し替わらずに残っていたら(失敗した)、もう一度送れるようにする
+  scheduleRetryButton() {
+    clearTimeout(this.retryTimeout)
+    this.retryTimeout = setTimeout(() => this.retryButtonTarget.classList.remove("hidden"), RETRY_SHOWN_AFTER_MS)
   }
 
   // ---- 補助 ----
@@ -169,14 +224,8 @@ export default class extends Controller {
     if (this.hasPauseButtonTarget) this.pauseButtonTarget.classList.add("hidden")
   }
 
-  // 読み上げ(aria-live)は、はじまりと完了のときだけ
-  announce(message) { this.statusTarget.textContent = message }
-
-  duration(seconds) {
-    const m = Math.floor(seconds / 60), s = seconds % 60
-    if (m === 0) return `${s}秒`
-    return s === 0 ? `${m}分` : `${m}分${s}秒`
-  }
+  // 読み上げ(aria-live)は、はじまりと完了のときだけ(同じ文言のときは更新しない)
+  announce(message) { if (this.statusTarget.textContent !== message) this.statusTarget.textContent = message }
 
   durationEn(seconds) {
     const m = Math.floor(seconds / 60), s = seconds % 60
@@ -186,19 +235,37 @@ export default class extends Controller {
 
   // タブが隠れて戻ったとき、経過時間を時計から計算し直す
   onVisibility() {
-    if (this.state !== "running") return
+    if (!this.model || this.model.status !== "running") return
     if (!document.hidden) this.requestWakeLock()
     this.tick()
   }
 
-  // 画面ロック(Screen Wake Lock)。未対応・失敗しても、タイマーは普通に動く
+  // 終わる少し前に、一度だけそっと知らせる(短い音と軽い振動)
+  warnIfNeeded() {
+    if (this.warned) return
+    const remaining = M.remainingMs(this.model, Date.now()) / 1000
+    if (remaining > WARN_BEFORE_SECONDS(this.secondsValue)) return
+    this.warned = true
+    this.notifyDevice([80], 0.5)
+  }
+
+  // お知らせ: 振動(対応端末のみ)ややわらかい音。どちらも失敗しても進行には影響しない
+  notifyDevice(vibration, soundSeconds) {
+    try { navigator.vibrate?.(vibration) } catch (_error) { /* 何もしない */ }
+    this.beep(soundSeconds)
+  }
+
+  // 画面ロック(Screen Wake Lock)。未対応・失敗しても、タイマーは普通に動く。取得中の二重呼び出しも防ぐ
   async requestWakeLock() {
+    if (!("wakeLock" in navigator) || this.wakeLock || this.wakeLockPending) return
+    this.wakeLockPending = true
     try {
-      if (!("wakeLock" in navigator) || this.wakeLock) return
       this.wakeLock = await navigator.wakeLock.request("screen")
       this.wakeLock.addEventListener("release", () => { this.wakeLock = null })
     } catch (_error) {
       this.wakeLock = null
+    } finally {
+      this.wakeLockPending = false
     }
   }
 
@@ -207,25 +274,11 @@ export default class extends Controller {
     this.wakeLock = null
   }
 
-  // 終わる少し前に、一度だけそっと知らせる(短い音と軽い振動)
-  warnIfNeeded() {
-    if (this.warned) return
-    const remaining = this.secondsValue - this.elapsedMs() / 1000
-    if (remaining > WARN_BEFORE_SECONDS(this.secondsValue)) return
-    this.warned = true
-    this.notify([80], 0.5)
-  }
-
-  // お知らせ: 振動(対応端末のみ)ややわらかい音。どちらも失敗しても進行には影響しない
-  notify(vibration, soundSeconds) {
-    try { navigator.vibrate?.(vibration) } catch (_error) { /* 何もしない */ }
-    this.beep(soundSeconds)
-  }
-
+  // AudioContext は使い回す(開始のたびに作ると、ブラウザの上限に近づく)
   prepareAudio() {
     const Context = window.AudioContext || window.webkitAudioContext
     if (!Context) return
-    this.audio = new Context()
+    this.audio ||= new Context()
     this.audio.resume?.()
   }
 

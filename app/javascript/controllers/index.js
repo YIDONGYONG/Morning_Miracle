@@ -15,3 +15,9 @@ application.register("ring-timer", RingTimerController)
 
 import CelebrationController from "./celebration_controller"
 application.register("celebration", CelebrationController)
+
+import TimerBadgeController from "./timer_badge_controller"
+application.register("timer-badge", TimerBadgeController)
+
+import TimerClearController from "./timer_clear_controller"
+application.register("timer-clear", TimerClearController)

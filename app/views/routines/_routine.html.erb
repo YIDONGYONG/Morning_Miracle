@@ -17,6 +17,8 @@
 
   <% if routine.recorded_today? %>
     <%# 記録済み。タイマーなら完了の輪(セージ色)を見せ、途中でやめた場合も「できた分」を認める %>
+    <%# サーバーに記録済み。ブラウザに残っているこのルーティンのタイマーの状態(ミニバッジなど)を片付ける %>
+    <span data-controller="timer-clear" data-timer-clear-activity-key-value="<%= routine.category %>" hidden></span>
     <div class="success mt-4 <%= 'success-fresh' if local_assigns[:fresh] %>" role="status">
       <svg viewBox="0 0 24 24" class="success-check size-7 flex-none" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path pathLength="1" d="M5 12.5l4.5 4.5L19 7.5"/></svg>
       <p class="text-base font-bold"><%= today_log ? today_log.message : "Great job!" %></p>
@@ -28,7 +30,7 @@
   <% else %>
     <% if local_assigns[:notice].present? %><p class="mt-4 rounded-2xl bg-amber-soft px-4 py-3 text-sm text-ink-body" role="status"><%= notice %></p><% end %>
     <% if activity[:kind] == :timer %>
-      <%= render "routines/ring_timer", routine: routine, seconds: activity[:seconds] %>
+      <%= render "routines/ring_timer", routine: routine, seconds: routine.timer_seconds, pauseable: activity[:seconds] >= 300 %>
     <% else %>
       <%# 回数・行動の確認はワンタップで完了 %>
       <%= button_to "できた", activity_logs_path, method: :post, params: { activity_log: { activity_key: routine.category } },

@@ -37,7 +37,8 @@ RSpec.describe ActivityLog, type: :model do
   it "rejects an unparsable, future or too old start time" do
     expect(build(started: nil)).not_to be_valid
     expect(build(started: now + 1.minute)).not_to be_valid
-    expect(build(started: now - 3.hours)).not_to be_valid
+    expect(build(started: now - 25.hours)).not_to be_valid
+    expect(build(started: now - 3.hours)).to be_valid # アプリを閉じていた間に終わった記録も受け付ける
   end
 
   it "records count/check activities in one tap" do

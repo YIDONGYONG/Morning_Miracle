@@ -22,7 +22,6 @@ class HomePresenter
   end
 
   def today = @now.to_date
-  def mood_label(key) = MOODS[key]
   def mood_hint = MOOD_HINTS[mood]
 
   # ---- 時間帯 ----

@@ -129,7 +129,6 @@
   .card-yellow { @apply bg-yellow-tint shadow-none; }
   .card-lavender { @apply bg-lavender-tint shadow-none; }
   .eyebrow { @apply text-sm font-medium text-sage-deep; }
-  .chip { @apply inline-flex items-center gap-1.5 rounded-full bg-amber-soft px-3 py-1.5 text-xs text-ink-muted; }
 
   /* ---------- 気分の選択（軽め / 普通 / 元気） ---------- */
   .seg { @apply grid grid-cols-3 gap-2; }

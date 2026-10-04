@@ -67,7 +67,6 @@ class Routine < ApplicationRecord
   def concept = level_data[:concept]
   # タイマーの実際の長さ(秒)。サーバーの検証(ActivityLog)と画面の両方がこの値を使う
   def timer_seconds = DEBUG_TIMER_SECONDS || activity[:seconds]
-  def max_level? = current_level >= MAX_LEVEL
   def recorded_today? = last_recorded_on == Date.current
 
   # 今日の達成を記録する。fully=false は「途中でやめた」(できた分は認めるが、週のクリア日には数えない)。:recorded / nil(記録済み)

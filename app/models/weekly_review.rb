@@ -14,6 +14,5 @@ class WeeklyReview < ApplicationRecord
       .or(where(outcome: "suggested", responded_at: nil))
   }
 
-  def week_end = week_start + 6
   def awaiting_response? = suggested? && responded_at.nil?
 end

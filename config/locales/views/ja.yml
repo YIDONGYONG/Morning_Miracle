@@ -52,6 +52,7 @@ ja:
     create:
       success: ログインしました
       failure: ログインに失敗しました
+      throttled: 試行回数が多すぎます。しばらくしてからもう一度お試しください
     destroy:
       success: ログアウトしました
   users:

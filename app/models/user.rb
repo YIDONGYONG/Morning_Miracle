@@ -1,8 +1,6 @@
 class User < ApplicationRecord
   # パスワードの暗号化と認証
   has_secure_password
-  # メールアドレスは前後の空白を除き小文字にそろえる（大文字小文字違いの重複登録・ログイン失敗を防ぐ）
-  normalizes :email, with: ->(email) { email.strip.downcase }
   has_many :visions
   has_many :routines
   has_many :routine_logs, through: :routines, source: :logs

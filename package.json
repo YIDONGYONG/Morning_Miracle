@@ -5,7 +5,7 @@
     "esbuild": "^0.28.2"
   },
   "scripts": {
-    "build": "esbuild app/javascript/*.* --bundle --sourcemap --outdir=app/assets/builds --public-path=assets",
+    "build": "esbuild app/javascript/*.* --bundle --sourcemap --minify --outdir=app/assets/builds --public-path=assets",
     "test:js": "node --test test/js/*.test.mjs"
   },
   "dependencies": {

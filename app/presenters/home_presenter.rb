@@ -56,7 +56,7 @@ class HomePresenter
   end
 
   # 完了済みなら、今日達成したルーティン名（なければ nil）
-  def done_labels = routines.select { |r| r.recorded_today? && achieved_today?(r) }.map(&:category_label)
+  def done_labels = routines.select { |r| r.recorded_today? && achieved_today_ids.include?(r.id) }.map(&:category_label)
 
   # ---- 積み上げた朝 ----
   def total_mornings = achieved_dates.size
@@ -134,7 +134,7 @@ class HomePresenter
   def logs = @logs ||= @user.routine_logs.pluck(:recorded_on, :achieved)
   def log_dates = logs.map(&:first)
   def achieved_dates = @achieved_dates ||= logs.select(&:last).map(&:first).to_set
-  def achieved_today?(routine) = routine.logs.exists?(recorded_on: today, achieved: true)
+  def achieved_today_ids = @achieved_today_ids ||= @user.routine_logs.where(recorded_on: today, achieved: true).pluck(:routine_id).to_set
   def count_between(from, to) = achieved_dates.count { |d| d.between?(from, to) }
 
   # 積み上げるほど芽が育つ（減ることはない）

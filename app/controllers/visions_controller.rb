@@ -3,13 +3,11 @@ class VisionsController < ApplicationController
 
   # 1. 一覧表示
   def index
-    @visions = Vision.all
+    @visions = current_user.visions.order(:id)
   end
 
   # 2. 詳細表示
-  def show
-    @vision = Vision.find(params[:id])
-  end
+  def show; end
 
   # 3. 新規作成フォーム
   def new
@@ -28,9 +26,7 @@ class VisionsController < ApplicationController
   end
 
   # 4. 編集フォーム
-  def edit
-    @vision = current_user.visions.find(params[:id])
-  end
+  def edit; end
 
   # 4. 更新（DB保存）
   def update
@@ -49,9 +45,9 @@ class VisionsController < ApplicationController
 
   private
 
-  # 対象のビジョンを取得する共通処理
+  # 対象のビジョンを取得する共通処理（自分のビジョンだけ。他人のIDは404）
   def set_vision
-    @vision = Vision.find(params[:id])
+    @vision = current_user.visions.find(params[:id])
   end
 
   def vision_params

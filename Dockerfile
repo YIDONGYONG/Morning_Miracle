@@ -1,4 +1,4 @@
-FROM ruby:3.2.5
+FROM ruby:3.4.7
 ENV APP /app
 ENV LANG C.UTF-8
 ENV TZ Asia/Tokyo

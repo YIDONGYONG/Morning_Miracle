@@ -23,6 +23,9 @@ module App
     # in config/environments, which are processed later.
     #
     config.time_zone = "Tokyo"
+    # Turbo はページ移動を fetch で行う。Rails が付ける Link: rel=preload ヘッダーを、そのたびにブラウザが処理して
+    # 「preloaded but not used」の警告が出るため無効にする（CSS は <head> の link で読み込まれる）
+    config.action_view.preload_links_header = false
     # config.eager_load_paths << Rails.root.join("extras")
     # config/application.rb
   end

@@ -42,4 +42,11 @@ RSpec.describe "UserSessions", type: :request do
     get login_path
     expect(response.body).to include('rel="icon"')
   end
+
+  # 回帰: Link: rel=preload ヘッダーが Turbo のページ移動のたびにコンソール警告を出していた
+  it "does not send a preload Link header (avoids 'preloaded but not used' warnings on Turbo visits)" do
+    get login_path
+    expect(response.headers["Link"]).to be_nil
+    expect(response.body).to include("<link rel=\"stylesheet\"")
+  end
 end

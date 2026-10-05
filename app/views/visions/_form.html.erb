@@ -1,5 +1,6 @@
 <%# 新規・編集で共用するフォーム（保存処理は VisionsController 側） %>
-<%= form_with(model: vision, class: "card space-y-4") do |form| %>
+<%# novalidate: 空のまま送ったときは、ブラウザ標準の英語/吹き出しではなく、サーバー側の日本語メッセージを出す %>
+<%= form_with(model: vision, class: "card space-y-4", html: { novalidate: true }) do |form| %>
   <% if vision.errors.any? %>
     <div class="field-error space-y-1">
       <p><%= vision.errors.count %>件のエラーがあるため保存できません</p>
@@ -13,7 +14,7 @@
 
   <div>
     <%= form.label :title, "タイトル", class: "field-label" %>
-    <%= form.text_field :title, placeholder: "ビジョンのタイトルを入力してください...", class: "field-input" %>
+    <%= form.text_field :title, placeholder: "タイトルを入力", class: "field-input" %>
   </div>
 
   <div>
@@ -23,7 +24,11 @@
 
   <div>
     <%= form.label :target_date, "達成予定日", class: "field-label" %>
-    <%= form.date_field :target_date, min: Date.current, class: "field-input" %>
+    <%# required は :invalid（未選択）の判定に使い、案内文の表示切り替えだけに効かせる（送信は novalidate でサーバー側が検証） %>
+    <div class="relative">
+      <%= form.date_field :target_date, required: true, class: "field-input field-date peer" %>
+      <span class="field-date-hint peer-valid:hidden" aria-hidden="true">達成日を決めてください</span>
+    </div>
   </div>
 
   <%= form.submit "保存する", class: "btn btn-primary w-full" %>

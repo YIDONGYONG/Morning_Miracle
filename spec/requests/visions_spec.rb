@@ -74,4 +74,25 @@ RSpec.describe "Visions", type: :request do
     get visions_path
     expect(response.body).to include("達成予定日：#{vision.target_date.strftime('%Y年%-m月%-d日')}")
   end
+
+  # スマホ対応: 日付が未選択でも案内が見え、入力欄は iPhone が自動拡大しない 16px、空送信は日本語のサーバーメッセージ
+  describe "form on mobile" do
+    it "shows the Japanese hint for the empty target date, which the browser would otherwise render blank" do
+      get new_vision_path
+      expect(response.body).to include("達成日を決めてください")
+      expect(response.body).to include("field-date-hint")
+    end
+
+    it "lets the server show the validation messages instead of the browser's own bubble" do
+      get new_vision_path
+      expect(response.body).to match(/<form[^>]*novalidate/)
+    end
+
+    it "does not hide an already saved (possibly past) target date behind a min attribute" do
+      vision.update_columns(target_date: Date.current - 5)
+      get edit_vision_path(vision)
+      expect(response.body).to include(%(value="#{(Date.current - 5).iso8601}"))
+      expect(response.body).not_to match(/type="date"[^>]*min=/)
+    end
+  end
 end

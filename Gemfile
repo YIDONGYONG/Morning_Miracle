@@ -33,8 +33,6 @@ gem "bootsnap", require: false
 # gem "image_processing", "~> 1.2"
 # gem "tailwindcss-rails"
 # Gemfile
-gem "devise"
-gem "sassc-rails"
 gem "bcrypt"
 
 group :development, :test do
@@ -49,7 +47,6 @@ group :development, :test do
 
     # 추가한 RuboCop 관련 젬들
     gem "rubocop", require: false
-    gem "rubocop-performance", require: false
     # RSpec 추가
     gem "rspec-rails"
   end

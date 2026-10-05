@@ -19,37 +19,37 @@ class Routine < ApplicationRecord
 
   # 活動の定義。kind は :timer(時間を測る) / :count(回数・分量) / :check(行動の確認)
   #   label は表示文のもと。%{value} があれば値(10秒・1ページ など)をその位置に入れる(ActivityText 参照)
-  def self.timer(label, seconds, note: nil) = { label: label, kind: :timer, seconds: seconds, note: note }.compact
-  def self.count(label, amount, unit) = { label: label, kind: :count, amount: amount, unit: unit }
-  def self.check(label, amount: nil, unit: nil) = { label: label, kind: :check, amount: amount, unit: unit }.compact
-  private_class_method :timer, :count, :check
+  def self.timer_goal(label, seconds, note: nil) = { label: label, kind: :timer, seconds: seconds, note: note }.compact
+  def self.count_goal(label, amount, unit) = { label: label, kind: :count, amount: amount, unit: unit }
+  def self.check_goal(label, amount: nil, unit: nil) = { label: label, kind: :check, amount: amount, unit: unit }.compact
+  private_class_method :timer_goal, :count_goal, :check_goal
 
   # 各レベルの目標 (index 0 = レベル1)
   LEVELS = [
     { concept: "スモールスタート（ハードルをゼロに）",
-      exercise: timer("玄関の前に%{value}立つ", 10), meditation: count("深呼吸", 1, "回"),
-      reading: count("本を %{value}読む", 1, "ページ"), planning: check("今日やることを %{value}書き出す", amount: 1, unit: "つ") },
+      exercise: timer_goal("玄関の前に%{value}立つ", 10), meditation: count_goal("深呼吸", 1, "回"),
+      reading: count_goal("本を %{value}読む", 1, "ページ"), planning: check_goal("今日やることを %{value}書き出す", amount: 1, unit: "つ") },
     { concept: "行動開始（体を軽く起こす）",
-      exercise: timer("軽い足踏み", 60), meditation: timer("瞑想", 120),
-      reading: timer("読書", 180), planning: check("メモ帳で今日の予定を確認する") },
+      exercise: timer_goal("軽い足踏み", 60), meditation: timer_goal("瞑想", 120),
+      reading: timer_goal("読書", 180), planning: check_goal("メモ帳で今日の予定を確認する") },
     { concept: "習慣の固定（実行の定着）",
-      exercise: timer("ストレッチ", 180), meditation: timer("瞑想", 300),
-      reading: timer("読書", 300), planning: check("今日やることを %{value}書き出す", amount: 2, unit: "つ") },
+      exercise: timer_goal("ストレッチ", 180), meditation: timer_goal("瞑想", 300),
+      reading: timer_goal("読書", 300), planning: check_goal("今日やることを %{value}書き出す", amount: 2, unit: "つ") },
     { concept: "時間拡張（初級フェーズ）",
-      exercise: timer("ジョギング", 300), meditation: timer("瞑想", 480),
-      reading: timer("読書", 480), planning: check("簡単な優先順位をつける") },
+      exercise: timer_goal("ジョギング", 300), meditation: timer_goal("瞑想", 480),
+      reading: timer_goal("読書", 480), planning: check_goal("簡単な優先順位をつける") },
     { concept: "リズム形成（中級フェーズ）",
-      exercise: timer("ジョギング", 480), meditation: timer("瞑想", 600),
-      reading: timer("読書", 600), planning: check("主要なスケジュールの時間設定") },
+      exercise: timer_goal("ジョギング", 480), meditation: timer_goal("瞑想", 600),
+      reading: timer_goal("読書", 600), planning: check_goal("主要なスケジュールの時間設定") },
     { concept: "没入誘導（上級フェーズ）",
-      exercise: timer("ジョギング", 600), meditation: timer("瞑想", 780),
-      reading: timer("読書", 780), planning: check("一日のスケジュールの枠組みを作る") },
+      exercise: timer_goal("ジョギング", 600), meditation: timer_goal("瞑想", 780),
+      reading: timer_goal("読書", 780), planning: check_goal("一日のスケジュールの枠組みを作る") },
     { concept: "最終整備（完成へのステップ）",
-      exercise: timer("ジョギング", 720), meditation: timer("瞑想", 960),
-      reading: timer("読書", 960), planning: check("詳細なタイムスケジュール配分") },
+      exercise: timer_goal("ジョギング", 720), meditation: timer_goal("瞑想", 960),
+      reading: timer_goal("読書", 960), planning: check_goal("詳細なタイムスケジュール配分") },
     { concept: "完成期（朝の1時間を支配完了）",
-      exercise: timer("ジョギング", 900, note: "日光浴"), meditation: timer("瞑想", 1200, note: "最高の状態"),
-      reading: timer("読書", 1200, note: "深い没入"), planning: timer("一日のスケジュール完成 (%{value})", 300) }
+      exercise: timer_goal("ジョギング", 900, note: "日光浴"), meditation: timer_goal("瞑想", 1200, note: "最高の状態"),
+      reading: timer_goal("読書", 1200, note: "深い没入"), planning: timer_goal("一日のスケジュール完成 (%{value})", 300) }
   ].freeze
 
   # カテゴリごとの一言説明（カード小見出し）
@@ -71,23 +71,26 @@ class Routine < ApplicationRecord
 
   # 今日の達成を記録する。fully=false は「途中でやめた」(できた分は認めるが、週のクリア日には数えない)。:recorded / nil(記録済み)
   def record_achieved!(fully: true)
-    return if recorded_today?
-
-    update!(last_recorded_on: Date.current)
-    write_log!(true, fully: fully)
-    :recorded
+    record_today!(achieved: true, fully: fully)
   end
 
   # 「今日は休む」を記録する。レベルは下がらない。:recorded / nil(記録済み)
   def record_missed!
-    return if recorded_today?
-
-    update!(last_recorded_on: Date.current)
-    write_log!(false, fully: false)
-    :recorded
+    record_today!(achieved: false, fully: false)
   end
 
   private
+
+  # 行をロックして確認から保存までを直列にする（同時リクエストで二重記録・500にならないように）
+  def record_today!(achieved:, fully:)
+    with_lock do
+      next if recorded_today?
+
+      update!(last_recorded_on: Date.current)
+      write_log!(achieved, fully: fully)
+      :recorded
+    end
+  end
 
   # 今日の記録を1件だけ保存する（同じ日に再記録されても重複させない）
   def write_log!(achieved, fully:)

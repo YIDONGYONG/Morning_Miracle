@@ -86,7 +86,7 @@
   .card-grid { @apply grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6; }
 
   /* ---------- ボタン ---------- */
-  .btn { @apply inline-block cursor-pointer rounded-full border-0 px-4 py-2.5 text-center text-sm font-bold transition active:scale-95; }
+  .btn { @apply inline-block cursor-pointer rounded-full border-0 px-4 py-3 text-center text-sm font-bold transition active:scale-95; }
   .btn-primary { @apply bg-brand text-ink shadow-cta; }
   /* ホームのヒーローなど、画面で唯一の主役ボタン */
   .btn-lg { @apply flex h-15 w-full items-center justify-center text-lg; }

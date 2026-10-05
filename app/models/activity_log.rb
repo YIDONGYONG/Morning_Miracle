@@ -43,7 +43,7 @@ class ActivityLog < ApplicationRecord
     nil
   end
 
-  SUCCESS_MESSAGES = ["Great job!", "Well done!", "Nice work!", "Awesome!", "You did it!"].freeze
+  SUCCESS_MESSAGES = [ "Great job!", "Well done!", "Nice work!", "Awesome!", "You did it!" ].freeze
 
   # 画面用の成功メッセージ。再表示しても同じ文言になるよう、記録のIDで決める。途中でやめても、できた分を認める
   def message

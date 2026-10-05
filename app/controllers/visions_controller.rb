@@ -1,5 +1,5 @@
 class VisionsController < ApplicationController
-  before_action :set_vision, only: [:show, :edit, :update, :destroy]
+  before_action :set_vision, only: [ :show, :edit, :update, :destroy ]
 
   # 1. 一覧表示
   def index
@@ -19,7 +19,7 @@ class VisionsController < ApplicationController
     @vision = current_user.visions.build(vision_params)
 
     if @vision.save
-      redirect_to @vision, notice: 'ビジョンを登録しました'
+      redirect_to @vision, notice: "ビジョンを登録しました"
     else
       render :new, status: :unprocessable_entity
     end
@@ -31,7 +31,7 @@ class VisionsController < ApplicationController
   # 4. 更新（DB保存）
   def update
     if @vision.update(vision_params)
-      redirect_to @vision, notice: 'ビジョンを更新しました'
+      redirect_to @vision, notice: "ビジョンを更新しました"
     else
       render :edit, status: :unprocessable_entity
     end
@@ -40,7 +40,7 @@ class VisionsController < ApplicationController
   # 5. 削除
   def destroy
     @vision.destroy
-    redirect_to visions_path, status: :see_other, notice: 'ビジョンを削除しました'
+    redirect_to visions_path, status: :see_other, notice: "ビジョンを削除しました"
   end
 
   private
@@ -53,5 +53,4 @@ class VisionsController < ApplicationController
   def vision_params
     params.require(:vision).permit(:title, :content)
   end
-
 end

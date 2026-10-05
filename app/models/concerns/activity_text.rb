@@ -32,9 +32,9 @@ module ActivityText
     label = activity[:label]
     value = value(activity)
     body = if label.include?("%{value}") then format(label, value: value)
-           elsif value then "#{label} #{value}"
-           else label
-           end
+    elsif value then "#{label} #{value}"
+    else label
+    end
     activity[:note] ? "#{body} (#{activity[:note]})" : body
   end
 end

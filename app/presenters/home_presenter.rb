@@ -30,9 +30,9 @@ class HomePresenter
 
   def greeting
     case @now.hour
-    when 5..10 then ["おはようございます。", "今日は、ひとつだけやってみましょう。"]
-    when 11..17 then ["こんにちは。", "今日の一歩は、まだ間に合います。"]
-    else ["おつかれさまでした。", "明日の朝を、そっと準備しましょう。"]
+    when 5..10 then [ "おはようございます。", "今日は、ひとつだけやってみましょう。" ]
+    when 11..17 then [ "こんにちは。", "今日の一歩は、まだ間に合います。" ]
+    else [ "おつかれさまでした。", "明日の朝を、そっと準備しましょう。" ]
     end
   end
 
@@ -48,10 +48,10 @@ class HomePresenter
     return unless routine
 
     level = case mood
-            when "light" then [routine.current_level - 1, 1].max
-            when "strong" then [routine.current_level + 1, Routine::MAX_LEVEL].min
-            else routine.current_level
-            end
+    when "light" then [ routine.current_level - 1, 1 ].max
+    when "strong" then [ routine.current_level + 1, Routine::MAX_LEVEL ].min
+    else routine.current_level
+    end
     routine.goal(level)
   end
 

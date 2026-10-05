@@ -28,7 +28,7 @@ class RoutinesController < ApplicationController
     result = @routine.record_missed!
     redirect_to routines_path, notice: miss_message(result)
   end
-  
+
   private
 
   # 接続したときに先週分を判定する（判定済みなら何もしない）

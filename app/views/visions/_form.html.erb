@@ -21,5 +21,10 @@
     <%= form.text_area :content, rows: 4, placeholder: "このビジョンについて詳しく書いてみましょう...", class: "field-input resize-none" %>
   </div>
 
+  <div>
+    <%= form.label :target_date, "達成予定日", class: "field-label" %>
+    <%= form.date_field :target_date, min: Date.current, class: "field-input" %>
+  </div>
+
   <%= form.submit "保存する", class: "btn btn-primary w-full" %>
 <% end %>

@@ -2,7 +2,7 @@ require 'rails_helper'
 
 RSpec.describe "Visions", type: :request do
   let!(:user) { User.create!(email: "vv@example.com", password: "password1", first_name: "a", last_name: "b") }
-  let!(:vision) { user.visions.create!(title: "My vision", content: "text") }
+  let!(:vision) { user.visions.create!(title: "My vision", content: "text", target_date: 1.year.from_now.to_date) }
 
   before { post login_path, params: { email: user.email, password: "password1" } }
 
@@ -20,7 +20,7 @@ RSpec.describe "Visions", type: :request do
 
   describe "ownership (regression: other users' visions were readable and editable)" do
     let!(:other) { User.create!(email: "other@example.com", password: "password1", first_name: "c", last_name: "d") }
-    let!(:others_vision) { other.visions.create!(title: "Others secret", content: "private") }
+    let!(:others_vision) { other.visions.create!(title: "Others secret", content: "private", target_date: 1.year.from_now.to_date) }
 
     it "lists only my own visions" do
       get visions_path
@@ -48,7 +48,7 @@ RSpec.describe "Visions", type: :request do
   end
 
   it "creates a vision owned by the current user" do
-    expect { post visions_path, params: { vision: { title: "New", content: "x" } } }.to change { user.visions.count }.by(1)
+    expect { post visions_path, params: { vision: { title: "New", content: "x", target_date: 1.year.from_now.to_date.to_s } } }.to change { user.visions.count }.by(1)
     expect(response).to redirect_to(vision_path(Vision.last))
   end
 
@@ -62,5 +62,16 @@ RSpec.describe "Visions", type: :request do
   it "updates my own vision" do
     patch vision_path(vision), params: { vision: { title: "Renamed" } }
     expect(vision.reload.title).to eq "Renamed"
+  end
+
+  it "shows readable errors for a missing content and a past target date" do
+    post visions_path, params: { vision: { title: "t", content: "", target_date: (Date.current - 1).to_s } }
+    expect(response).to have_http_status(:unprocessable_entity)
+    expect(response.body).to include("詳細 を入力してください").and include("達成予定日 は今日以降の日付にしてください")
+  end
+
+  it "shows the target date on the vision card" do
+    get visions_path
+    expect(response.body).to include("達成予定日：#{vision.target_date.strftime('%Y年%-m月%-d日')}")
   end
 end

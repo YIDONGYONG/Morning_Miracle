@@ -1,8 +1,9 @@
 class User < ApplicationRecord
   # パスワードの暗号化と認証
   has_secure_password
-  has_many :visions
-  has_many :routines
+  # ユーザーを削除すると、ビジョン・ルーティン(と記録)も一緒に削除される
+  has_many :visions, dependent: :destroy
+  has_many :routines, dependent: :destroy
   has_many :routine_logs, through: :routines, source: :logs
   has_many :activity_logs, dependent: :destroy
   has_many :weekly_reviews, dependent: :destroy

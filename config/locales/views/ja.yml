@@ -10,6 +10,7 @@ ja:
       vision:
         title: タイトル
         content: 詳細
+        target_date: 達成予定日
     errors:
       models:
         user:

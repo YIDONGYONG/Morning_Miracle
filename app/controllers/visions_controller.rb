@@ -51,6 +51,6 @@ class VisionsController < ApplicationController
   end
 
   def vision_params
-    params.require(:vision).permit(:title, :content)
+    params.require(:vision).permit(:title, :content, :target_date)
   end
 end

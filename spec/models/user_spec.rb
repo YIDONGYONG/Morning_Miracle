@@ -46,4 +46,32 @@ RSpec.describe User, type: :model do
   it "keeps rest_tickets from going negative" do
     expect(build_user(rest_tickets: -1)).not_to be_valid
   end
+
+  describe "deleting a user (dependent destroy)" do
+    it "removes the visions, routines, their logs, activity logs and weekly reviews" do
+      user = build_user.tap(&:save!)
+      user.visions.create!(title: "t", content: "c", target_date: Date.current + 1)
+      routine = user.routines.create!(category: :exercise)
+      routine.record_achieved!
+      ActivityLog.create!(user: user, level: 1, activity_key: "planning", kind: :check, started_at: Time.current,
+                          completed_at: Time.current, actual_seconds: 0)
+      user.weekly_reviews.create!(week_start: Date.current.beginning_of_week - 7, clear_days: 0, outcome: :stayed,
+                                  level_before: 1, level_after: 1)
+
+      expect { user.destroy }.to change(Vision, :count).by(-1)
+        .and change(Routine, :count).by(-1)
+        .and change(RoutineLog, :count).by(-1)
+        .and change(ActivityLog, :count).by(-1)
+        .and change(WeeklyReview, :count).by(-1)
+    end
+
+    it "does not delete another user's data" do
+      user = build_user.tap(&:save!)
+      other = build_user(email: "other-um@example.com").tap(&:save!)
+      other.visions.create!(title: "t", content: "c", target_date: Date.current + 1)
+      other.routines.create!(category: :reading)
+
+      expect { user.destroy }.not_to change { [ Vision.count, Routine.count ] }
+    end
+  end
 end

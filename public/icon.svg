@@ -1,15 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="512" height="512">
-  <rect width="64" height="64" rx="14" fill="#fbf6ec"/>
-  <g>
-    <path d="M30 23C24 13 14 13 7 17C13 19 17 20 21 21C17 22 14 25 13 28C20 27 26 25 30 24Z" fill="#e8f0e3" stroke="#4b6e4d" stroke-width="1.6" stroke-linejoin="round"/>
-    <path d="M34 23C40 13 50 13 57 17C51 19 47 20 43 21C47 22 50 25 51 28C44 27 38 25 34 24Z" fill="#e8f0e3" stroke="#4b6e4d" stroke-width="1.6" stroke-linejoin="round"/>
-    <path d="M32 11V59" stroke="#8a6f56" stroke-width="3.6" stroke-linecap="round"/>
-    <circle cx="32" cy="9" r="5" fill="#fbd59b"/><circle cx="32" cy="9" r="3.2" fill="#f6ae72"/>
-    <path d="M32 57C19 53 19 46 32 43C45 40 45 33 32 30C25 28.5 26 24.5 33 24" fill="none" stroke="#4b6e4d" stroke-width="7" stroke-linecap="round"/>
-    <path d="M32 57C19 53 19 46 32 43C45 40 45 33 32 30C25 28.5 26 24.5 33 24" fill="none" stroke="#8dae88" stroke-width="4.4" stroke-linecap="round"/>
-    <circle cx="37" cy="23" r="5" fill="#8dae88" stroke="#4b6e4d" stroke-width="1.6"/>
-    <circle cx="35.4" cy="21.8" r="1" fill="#43372f"/><circle cx="38.8" cy="21.8" r="1" fill="#43372f"/>
-    <circle cx="34.6" cy="24.2" r="1.1" fill="#f6ae72" opacity=".7"/><circle cx="39.6" cy="24.2" r="1.1" fill="#f6ae72" opacity=".7"/>
-    <path d="M36 24.6Q37.2 25.8 38.4 24.6" fill="none" stroke="#43372f" stroke-width=".9" stroke-linecap="round"/>
+  <clipPath id="c"><rect width="64" height="64" rx="15"/></clipPath>
+  <g clip-path="url(#c)">
+    <rect width="64" height="28" fill="#fde0d3"/>
+    <rect y="28" width="64" height="36" fill="#fdf0d0"/>
+    <circle cx="32" cy="42" r="27" fill="#fbd59b" opacity=".45"/><circle cx="32" cy="42" r="17" fill="#f1bb7e"/>
+    <path d="M0 64V45C14 41 24 47 36 44C46 42 56 45 64 43V64Z" fill="#c6d9bf"/>
+    <path d="M0 64V53C16 49 30 55 44 52C52 50 58 51 64 50V64Z" fill="#94b08e"/>
   </g>
 </svg>

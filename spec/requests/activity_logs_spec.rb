@@ -1,11 +1,11 @@
 require 'rails_helper'
 
 RSpec.describe "ActivityLogs", type: :request do
-  let!(:user) { User.create!(email: "alr@example.com", password: "pass", first_name: "a", last_name: "b") }
+  let!(:user) { User.create!(email: "alr@example.com", password: "password1", first_name: "a", last_name: "b") }
   let(:headers) { { "Accept" => "text/vnd.turbo-stream.html" } }
 
   before do
-    post login_path, params: { email: user.email, password: "pass" }
+    post login_path, params: { email: user.email, password: "password1" }
     post routines_path
   end
 
@@ -55,11 +55,11 @@ RSpec.describe "ActivityLogs", type: :request do
 end
 
 RSpec.describe "ActivityLogs celebration", type: :request do
-  let!(:user) { User.create!(email: "cel@example.com", password: "pass", first_name: "a", last_name: "b") }
+  let!(:user) { User.create!(email: "cel@example.com", password: "password1", first_name: "a", last_name: "b") }
   let(:headers) { { "Accept" => "text/vnd.turbo-stream.html" } }
 
   before do
-    post login_path, params: { email: user.email, password: "pass" }
+    post login_path, params: { email: user.email, password: "password1" }
     post routines_path
   end
 
@@ -81,11 +81,11 @@ RSpec.describe "ActivityLogs celebration", type: :request do
 end
 
 RSpec.describe "ActivityLogs repeated taps", type: :request do
-  let!(:user) { User.create!(email: "tap@example.com", password: "pass", first_name: "a", last_name: "b") }
+  let!(:user) { User.create!(email: "tap@example.com", password: "password1", first_name: "a", last_name: "b") }
   let(:headers) { { "Accept" => "text/vnd.turbo-stream.html" } }
 
   before do
-    post login_path, params: { email: user.email, password: "pass" }
+    post login_path, params: { email: user.email, password: "password1" }
     post routines_path
   end
 

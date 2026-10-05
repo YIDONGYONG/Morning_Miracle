@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe HomePresenter do
-  let(:user) { User.create!(email: "hp@example.com", password: "pass", first_name: "a", last_name: "b") }
+  let(:user) { User.create!(email: "hp@example.com", password: "password1", first_name: "a", last_name: "b") }
   let(:routine) { user.routines.create!(category: :exercise) }
   let(:now) { Time.zone.local(2026, 10, 3, 7, 0) }
 

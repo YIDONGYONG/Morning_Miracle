@@ -1,10 +1,10 @@
 require 'rails_helper'
 
 RSpec.describe "Visions", type: :request do
-  let!(:user) { User.create!(email: "vv@example.com", password: "pass", first_name: "a", last_name: "b") }
+  let!(:user) { User.create!(email: "vv@example.com", password: "password1", first_name: "a", last_name: "b") }
   let!(:vision) { user.visions.create!(title: "My vision", content: "text") }
 
-  before { post login_path, params: { email: user.email, password: "pass" } }
+  before { post login_path, params: { email: user.email, password: "password1" } }
 
   it "shows the cover image on index and show" do
     [ visions_path, vision_path(vision) ].each do |path|

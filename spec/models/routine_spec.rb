@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe Routine, type: :model do
-  let(:user) { User.create!(email: "r@example.com", password: "pass", first_name: "a", last_name: "b") }
+  let(:user) { User.create!(email: "r@example.com", password: "password1", first_name: "a", last_name: "b") }
   let(:routine) { user.routines.create!(category: :exercise) }
 
   it "starts at level 1" do
@@ -47,7 +47,7 @@ RSpec.describe Routine, "activity definitions" do
 end
 
 RSpec.describe Routine, "#timer_seconds" do
-  let(:user) { User.create!(email: "ts@example.com", password: "pass", first_name: "a", last_name: "b") }
+  let(:user) { User.create!(email: "ts@example.com", password: "password1", first_name: "a", last_name: "b") }
 
   it "uses the level definition (DEBUG_TIMER_SECONDS is for development only)" do
     routine = user.routines.create!(category: :exercise, current_level: 6) # ジョギング 10分

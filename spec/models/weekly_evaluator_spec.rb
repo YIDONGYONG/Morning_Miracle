@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe WeeklyEvaluator do
-  let(:user) { User.create!(email: "we@example.com", password: "pass", first_name: "a", last_name: "b") }
+  let(:user) { User.create!(email: "we@example.com", password: "password1", first_name: "a", last_name: "b") }
   let(:today) { Date.new(2026, 10, 7) }                  # 水曜日
   let(:last_week) { Date.new(2026, 9, 28)..Date.new(2026, 10, 4) } # 月〜日
   let!(:routines) do

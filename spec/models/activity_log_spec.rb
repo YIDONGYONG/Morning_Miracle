@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe ActivityLog, type: :model do
-  let(:user) { User.create!(email: "al@example.com", password: "pass", first_name: "a", last_name: "b") }
+  let(:user) { User.create!(email: "al@example.com", password: "password1", first_name: "a", last_name: "b") }
   let(:routine) { user.routines.create!(category: :exercise) } # レベル1: 玄関の前に10秒立つ (timer)
   let(:now) { Time.current }
 

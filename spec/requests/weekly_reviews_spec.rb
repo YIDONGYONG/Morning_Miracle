@@ -1,11 +1,11 @@
 require 'rails_helper'
 
 RSpec.describe "WeeklyReviews", type: :request do
-  let!(:user) { User.create!(email: "wr@example.com", password: "pass", first_name: "a", last_name: "b") }
-  let!(:other) { User.create!(email: "wr2@example.com", password: "pass", first_name: "a", last_name: "b") }
+  let!(:user) { User.create!(email: "wr@example.com", password: "password1", first_name: "a", last_name: "b") }
+  let!(:other) { User.create!(email: "wr2@example.com", password: "password1", first_name: "a", last_name: "b") }
 
   before do
-    post login_path, params: { email: user.email, password: "pass" }
+    post login_path, params: { email: user.email, password: "password1" }
     post routines_path
     user.change_level!(4)
   end

@@ -1,6 +1,8 @@
 class User < ApplicationRecord
   # パスワードの暗号化と認証
   has_secure_password
+  # メールアドレスは前後の空白を除き小文字にそろえる（大文字小文字違いの重複登録・ログイン失敗を防ぐ）
+  normalizes :email, with: ->(email) { email.strip.downcase }
   has_many :visions
   has_many :routines
   has_many :routine_logs, through: :routines, source: :logs
@@ -36,7 +38,7 @@ class User < ApplicationRecord
       routine_logs.where(recorded_on: Date.current, achieved: true).count == Routine.categories.size
   end
 
-  validates :password, length: { minimum: 3 }, if: -> { new_record? || changes[:password_digest] }
+  validates :password, length: { minimum: 8 }, if: -> { new_record? || changes[:password_digest] }
   validates :first_name, presence: true, length: { maximum: 255 }
   validates :last_name, presence: true, length: { maximum: 255 }
   validates :email, presence: true, uniqueness: true, format: { with: URI::MailTo::EMAIL_REGEXP }

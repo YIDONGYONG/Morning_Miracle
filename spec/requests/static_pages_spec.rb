@@ -8,9 +8,9 @@ RSpec.describe "StaticPages", type: :request do
   end
 
   context "when logged in" do
-    let!(:user) { User.create!(email: "home@example.com", password: "pass", first_name: "a", last_name: "b") }
+    let!(:user) { User.create!(email: "home@example.com", password: "password1", first_name: "a", last_name: "b") }
 
-    before { post login_path, params: { email: user.email, password: "pass" } }
+    before { post login_path, params: { email: user.email, password: "password1" } }
 
     it "offers a start button before any routine exists" do
       get root_path

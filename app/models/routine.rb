@@ -64,7 +64,6 @@ class Routine < ApplicationRecord
   def level_data(level = current_level) = LEVELS[level - 1]
   def activity(level = current_level) = level_data(level)[category.to_sym]
   def goal(level = current_level) = ActivityText.text(activity(level))
-  def concept = level_data[:concept]
   # タイマーの実際の長さ(秒)。サーバーの検証(ActivityLog)と画面の両方がこの値を使う
   def timer_seconds = DEBUG_TIMER_SECONDS || activity[:seconds]
   def recorded_today? = last_recorded_on == Date.current

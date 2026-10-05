@@ -7,6 +7,9 @@ ja:
         email: メールアドレス
         password: パスワード
         password_confirmation: 確認用パスワード
+      vision:
+        title: タイトル
+        content: 詳細
     errors:
       models:
         user:
@@ -18,6 +21,13 @@ ja:
               too_short: は%{count}文字以上で入力してください
             password_confirmation:
               confirmation: とパスワードの入力が一致しません
+  errors:
+    messages:
+      blank: を入力してください
+      too_long: は%{count}文字以内で入力してください
+      not_a_number: は数値で入力してください
+      inclusion: は一覧にない値です
+      required: が必要です
   helpers:
     submit:
       create: 登録

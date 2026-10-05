@@ -222,4 +222,22 @@
   .timer-badge-dot { @apply size-2.5 rounded-full bg-brand; animation: badge-pulse 2s var(--ease-calm) infinite; }
   @keyframes badge-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
   @media (prefers-reduced-motion: reduce) { .timer-badge-dot { animation: none; } }
+
+  /* ---------- ロゴ（shared/_logo）。ゆっくり揺れて、まばたきする。動きを減らす設定では止める ---------- */
+  .logo { @apply inline-flex items-center gap-2; }
+  .logo-mark { @apply size-11 flex-none overflow-visible; animation: logo-bob 3.2s var(--ease-calm) infinite; }
+  .logo-word { @apply text-lg font-extrabold tracking-tight text-ink; }
+  .logo-wing, .logo-sun, .logo-head, .logo-eyes { transform-box: view-box; }
+  .logo-wing-l { transform-origin: 30px 23px; animation: logo-flap-l 2.6s var(--ease-calm) infinite; }
+  .logo-wing-r { transform-origin: 34px 23px; animation: logo-flap-r 2.6s var(--ease-calm) infinite; }
+  .logo-sun { transform-origin: 32px 9px; animation: logo-glow 3.2s var(--ease-calm) infinite; }
+  .logo-head { transform-origin: 33px 24px; animation: logo-sway 3.2s var(--ease-calm) infinite; }
+  .logo-eyes { transform-origin: 37px 21.8px; animation: logo-blink 4.8s infinite; }
+  @keyframes logo-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-1.5px); } }
+  @keyframes logo-flap-l { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(-7deg); } }
+  @keyframes logo-flap-r { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(7deg); } }
+  @keyframes logo-glow { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.18); opacity: 0.85; } }
+  @keyframes logo-sway { 0%, 100% { transform: rotate(-3deg); } 50% { transform: rotate(4deg); } }
+  @keyframes logo-blink { 0%, 92%, 100% { transform: scaleY(1); } 95% { transform: scaleY(0.1); } }
+  @media (prefers-reduced-motion: reduce) { .logo-mark, .logo-wing-l, .logo-wing-r, .logo-sun, .logo-head, .logo-eyes { animation: none; } }
 }

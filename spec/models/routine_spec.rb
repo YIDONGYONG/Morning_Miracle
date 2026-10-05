@@ -25,6 +25,21 @@ RSpec.describe Routine, type: :model do
     routine.record_achieved!
     expect(routine.record_missed!).to be_nil
   end
+
+  # 回帰: 別リクエストで先に記録済みなのに、古い状態のまま2回目が通って記録を上書きしていた
+  it "does not overwrite today's record when another request recorded first (stale instance)" do
+    stale = Routine.find(routine.id)
+    routine.record_achieved!
+    expect(stale.record_missed!).to be_nil
+    expect(routine.logs.count).to eq 1
+    expect(routine.logs.last.achieved).to be true
+  end
+
+  # 回帰: クラスメソッド count が ActiveRecord の Routine.count を隠して private にしていた
+  it "keeps ActiveRecord's Routine.count available" do
+    routine
+    expect(Routine.count).to eq 1
+  end
 end
 
 RSpec.describe Routine, "activity definitions" do

@@ -1,13 +1,25 @@
-<%# ロゴ（SVG なので拡大してもにじまない）。丘から朝日がのぼる図。朝日がゆっくり昇り、光がふくらむ。「動きを減らす」設定では止まる %>
+<%# ロゴ（SVG なので拡大してもにじまない）。みずみずしい3枚の葉。葉がそよ風のようにゆれ、しずくがきらりと光る。「動きを減らす」設定では止まる %>
 <span class="logo">
   <svg viewBox="0 0 64 64" class="logo-mark" aria-hidden="true">
     <clipPath id="logo-clip"><rect width="64" height="64" rx="15"/></clipPath>
     <g clip-path="url(#logo-clip)">
-    <rect width="64" height="28" fill="#fde0d3"/>
-    <rect y="28" width="64" height="36" fill="#fdf0d0"/>
-    <g class="logo-sun"><circle cx="32" cy="42" r="27" fill="#fbd59b" opacity=".45" class="logo-halo"/><circle cx="32" cy="42" r="17" fill="#f1bb7e"/></g>
-    <path d="M0 64V45C14 41 24 47 36 44C46 42 56 45 64 43V64Z" fill="#c6d9bf"/>
-    <path d="M0 64V53C16 49 30 55 44 52C52 50 58 51 64 50V64Z" fill="#94b08e"/>
+    <rect width="64" height="64" fill="#eaf6e2"/>
+    <circle cx="50" cy="13" r="7" fill="#fff6cf" opacity=".9"/>
+    <path d="M32 50C32 55 31 58 28 61" fill="none" stroke="#5b9d5b" stroke-width="2.6" stroke-linecap="round"/>
+    <g class="logo-leaf logo-leaf-l"><g transform="translate(32 52) rotate(-44) scale(.74) translate(-32 -52)">
+      <path d="M32 52C21 44 21 23 32 9C43 23 43 44 32 52Z" fill="#a6d98f"/>
+      <path d="M32 50V17M32 38L26 33M32 38L38 33M32 29L27 24M32 29L37 24" fill="none" stroke="#e3f6d8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </g></g>
+    <g class="logo-leaf logo-leaf-r"><g transform="translate(32 52) rotate(44) scale(.74) translate(-32 -52)">
+      <path d="M32 52C21 44 21 23 32 9C43 23 43 44 32 52Z" fill="#8cc97a"/>
+      <path d="M32 50V17M32 38L26 33M32 38L38 33M32 29L27 24M32 29L37 24" fill="none" stroke="#e3f6d8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </g></g>
+    <g class="logo-leaf logo-leaf-c">
+      <path d="M32 52C21 44 21 23 32 9C43 23 43 44 32 52Z" fill="#62b85f"/>
+      <path d="M32 50V16M32 38L25.5 32.5M32 38L38.5 32.5M32 29L26.5 23.5M32 29L37.5 23.5" fill="none" stroke="#e3f6d8" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+      <ellipse cx="37" cy="21" rx="1.6" ry="2.4" fill="#fff" opacity=".75" transform="rotate(25 37 21)"/>
+    </g>
+    <circle class="logo-dew" cx="46" cy="30" r="1.9" fill="#fff" opacity=".9"/>
     </g>
   </svg>
   <span class="logo-word">Morning Miracle</span>

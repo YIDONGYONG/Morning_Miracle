@@ -223,13 +223,16 @@
   @keyframes badge-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
   @media (prefers-reduced-motion: reduce) { .timer-badge-dot { animation: none; } }
 
-  /* ---------- ロゴ（shared/_logo）。朝日がゆっくり昇り、光がふくらむ。動きを減らす設定では止める ---------- */
+  /* ---------- ロゴ（shared/_logo）。葉がそよ風のようにゆれ、しずくが光る。動きを減らす設定では止める ---------- */
   .logo { @apply inline-flex items-center gap-2; }
   .logo-mark { @apply size-11 flex-none; }
   .logo-word { @apply text-lg font-extrabold tracking-tight text-ink; }
-  .logo-sun { transform-box: view-box; transform-origin: 32px 42px; animation: logo-rise 3.6s var(--ease-calm) infinite; }
-  .logo-halo { transform-box: view-box; transform-origin: 32px 42px; animation: logo-glow 3.6s var(--ease-calm) infinite; }
-  @keyframes logo-rise { 0%, 100% { transform: translateY(3px); } 50% { transform: translateY(-1.5px); } }
-  @keyframes logo-glow { 0%, 100% { transform: scale(0.94); opacity: 0.35; } 50% { transform: scale(1.08); opacity: 0.6; } }
-  @media (prefers-reduced-motion: reduce) { .logo-sun, .logo-halo { animation: none; } }
+  .logo-leaf, .logo-dew { transform-box: view-box; }
+  .logo-leaf { transform-origin: 32px 52px; animation: logo-sway 3.4s var(--ease-calm) infinite; }
+  .logo-leaf-l { animation-delay: -0.6s; }
+  .logo-leaf-r { animation-delay: -1.2s; animation-direction: reverse; }
+  .logo-dew { transform-origin: 46px 30px; animation: logo-twinkle 3.4s var(--ease-calm) infinite; }
+  @keyframes logo-sway { 0%, 100% { transform: rotate(-3deg); } 50% { transform: rotate(3deg); } }
+  @keyframes logo-twinkle { 0%, 100% { transform: scale(0.6); opacity: 0.3; } 50% { transform: scale(1.2); opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) { .logo-leaf, .logo-dew { animation: none; } }
 }

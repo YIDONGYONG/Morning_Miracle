@@ -26,7 +26,7 @@ export default class extends Controller {
     this.onVisibility = this.onVisibility.bind(this)
     document.addEventListener("visibilitychange", this.onVisibility)
     this.unsubscribe = timerStore.subscribe(() => this.sync())
-    this.sync({ restored: true })
+    this.sync()
   }
 
   // Turbo のページ移動でも、リスナー・タイマー・アニメーション・画面ロックを必ず片付ける(状態そのものは残す)
@@ -72,7 +72,7 @@ export default class extends Controller {
   }
 
   // ---- ストアの状態を画面に反映する ----
-  sync({ restored = false } = {}) {
+  sync() {
     const state = timerStore.current()
     const mine = state && state.activityKey === this.activityKeyValue ? state : null
     this.model = mine
@@ -80,7 +80,7 @@ export default class extends Controller {
 
     if (!mine) return this.renderIdle()
 
-    if (mine.status === "finished") return this.renderFinished(restored)
+    if (mine.status === "finished") return this.renderFinished()
     this.renderActive()
   }
 
@@ -122,7 +122,7 @@ export default class extends Controller {
     }
   }
 
-  renderFinished(restored) {
+  renderFinished() {
     this.clearTimers()
     this.releaseWakeLock()
     const s = this.model
@@ -134,7 +134,7 @@ export default class extends Controller {
     } else {
       this.announce(`${this.durationEn(M.actualSeconds(s))} counts. Nice start!`)
     }
-    this.submitIfNeeded(false, restored)
+    this.submitIfNeeded()
   }
 
   // ---- 時間の計算と描画 ----

@@ -2,7 +2,7 @@
 <div class="page">
   <%= render "shared/hero",
              title: safe_join(["ルーティン", tag.br, "小さな一歩を、ひとつずつ"]),
-             lead: safe_join(["これまでに迎えた朝 ", tag.span(current_user.mornings_count, id: "mornings_count", class: "font-bold"), "回。1週間に#{WeeklyReview::PROMOTE_CLEAR_DAYS}日、4つすべてできるとレベルが上がります。"]) %>
+             lead: safe_join(["これまでに迎えた朝 ", tag.span(current_user.mornings_count, id: "mornings_count", class: "font-bold"), "回。1週間に#{WeeklyReview::PROMOTE_CLEAR_DAYS}日、4つすべてできる週が#{WeeklyReview::PROMOTE_STREAK_WEEKS}週続くとレベルが上がります。"]) %>
 
   <main class="page-body">
     <%# 4つすべて達成したときのお祝い演出が、ここに差し込まれる %>

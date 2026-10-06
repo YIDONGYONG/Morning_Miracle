@@ -63,7 +63,7 @@
           <span><i class="legend-dot"></i> 迎えた朝</span>
           <span><i class="legend-dot !bg-beige"></i> 休んだ日</span>
         </p>
-        <p class="text-xs leading-relaxed">今週、すべてできた日 <b class="text-sage-deep"><%= home.week_clear_days %></b>/<%= home.promote_days %>日。1週間に<%= home.promote_days %>日できると、次のレベルに進みます。</p>
+        <p class="text-xs leading-relaxed">今週、すべてできた日 <b class="text-sage-deep"><%= home.week_clear_days %></b>/<%= home.promote_days %>日。<% if home.last_week_cleared? %>先週はクリアでした。今週も<%= home.promote_days %>日できると、次のレベルに進みます。<% else %>1週間に<%= home.promote_days %>日できる週が<%= home.promote_weeks %>週続くと、次のレベルに進みます。<% end %></p>
         <p class="leading-relaxed">休んだ日も、芽は枯れません。</p>
       </div>
     </section>

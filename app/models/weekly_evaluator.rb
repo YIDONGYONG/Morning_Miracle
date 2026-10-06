@@ -1,5 +1,6 @@
 # 接続したときに「先週」だけを判定して WeeklyReview に残す（さかのぼって判定しない）。
-#   クリアした日 3日以上 → レベルアップ / 1〜2日 → そのまま / 0日 → 休み券があれば免除、なければ「一段階軽く」を提案
+#   クリアした日 3日以上の週を「クリアした週」とし、同じレベルで2週続いたらレベルアップ（1週目はそのまま）
+#   1〜2日 → そのまま / 0日 → 休み券があれば免除、なければ「一段階軽く」を提案
 # 同じ週は一度しか判定されない（週ごとに一意）。最大でも1週間に1段階しか動かない。
 class WeeklyEvaluator
   MONTHLY_TICKETS = 2
@@ -40,7 +41,7 @@ class WeeklyEvaluator
     level = @user.level
     base = { week_start: last_week_start, clear_days: clear, level_before: level, level_after: level }
 
-    if clear >= WeeklyReview::PROMOTE_CLEAR_DAYS && level < Routine::MAX_LEVEL
+    if clear >= WeeklyReview::PROMOTE_CLEAR_DAYS && level < Routine::MAX_LEVEL && cleared_week_before?(level)
       @user.change_level!(level + 1)
       base.merge(outcome: :promoted, level_after: level + 1)
     elsif clear.zero? && level > 1
@@ -53,6 +54,16 @@ class WeeklyEvaluator
     else
       base.merge(outcome: :stayed)
     end
+  end
+
+  # 「先々週」も同じレベルでクリアした週だったか。昇格した直後の週は、新しいレベルでの1週目として数えない。
+  # 記録そのもので数えるので、先々週に接続しなかった（振り返りが残っていない）場合も取りこぼさない
+  def cleared_week_before?(level)
+    start = last_week_start - 7
+    return false if @user.clear_days(start..(start + 6)) < WeeklyReview::PROMOTE_CLEAR_DAYS
+
+    prior = @user.weekly_reviews.find_by(week_start: start)
+    prior.nil? || prior.level_before == level
   end
 
   # 月が変わっていたら休み券を月2枚に戻す

@@ -3,7 +3,7 @@
   <% case review.outcome %>
   <% when "promoted" %>
     <h2 class="text-lg font-bold text-ink">レベルアップ！ レベル<%= review.level_before %> → <%= review.level_after %></h2>
-    <p class="leading-relaxed text-ink-muted">先週は、すべてできた日が<%= review.clear_days %>日ありました。毎朝の一歩が、ちゃんと積もっています。</p>
+    <p class="leading-relaxed text-ink-muted"><%= WeeklyReview::PROMOTE_STREAK_WEEKS %>週続けて、すべてできた日が<%= WeeklyReview::PROMOTE_CLEAR_DAYS %>日以上ありました。毎朝の一歩が、ちゃんと積もっています。</p>
     <%= button_to "OK", acknowledge_weekly_review_path(review), method: :post, class: "btn btn-secondary", form: { class: "contents" } %>
   <% when "exempted" %>
     <h2 class="text-lg font-bold text-ink">先週はお休みでしたね。大丈夫です。</h2>

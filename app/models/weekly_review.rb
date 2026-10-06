@@ -1,6 +1,7 @@
 # 先週(月〜日)の振り返り結果。評価ではなく、次の一週間を無理なく始めるための記録。
 class WeeklyReview < ApplicationRecord
-  PROMOTE_CLEAR_DAYS = 3 # 4つすべてを最後までやれた日が、1週間にこの日数以上ならレベルアップ
+  PROMOTE_CLEAR_DAYS = 3  # 4つすべてを最後までやれた日が、1週間にこの日数以上なら「クリアした週」
+  PROMOTE_STREAK_WEEKS = 2 # クリアした週が、同じレベルでこの週数続いたらレベルアップ
 
   belongs_to :user
   enum :outcome, { promoted: "promoted", stayed: "stayed", exempted: "exempted", suggested: "suggested" }, validate: true

@@ -1,7 +1,7 @@
 # ホーム画面（今日）の表示データをまとめる。
 # 「積み上げた朝」は減らない累計、休んだ日は空白ではなく「休んだ日」として扱う。
 class HomePresenter
-  GARDEN_DAYS = 14        # 庭に表示する日数（7列 × 2週間。昇格までの2週間と同じ）
+  GARDEN_DAYS = 14        # 庭に表示する日数（7列 × 2週間。表示するだけで、昇格の条件とは関係ない）
   RETURN_AFTER_DAYS = 2   # この日数以上あいたら「また始める」カードを出す
   EVENING_FROM_HOUR = 18  # 「明日の私へ」を出し始める時刻
   MOODS = { "light" => "軽め", "normal" => "普通", "strong" => "元気" }.freeze
@@ -101,6 +101,15 @@ class HomePresenter
   # 今週、始めた全ルーティンを最後までやれた日数
   def week_clear_days = @week_clear_days ||= @user.clear_days(today.beginning_of_week..today)
   def promote_days = WeeklyReview::PROMOTE_CLEAR_DAYS
+  def promote_weeks = WeeklyReview::PROMOTE_STREAK_WEEKS
+
+  # 先週が「クリアした週」で、いま2週連続のチャレンジ中か（昇格した直後の週は含まない）
+  def last_week_cleared?
+    return @last_week_cleared if defined?(@last_week_cleared)
+
+    prior = @user.weekly_reviews.find_by(week_start: today.beginning_of_week - 7)
+    @last_week_cleared = prior.present? && prior.stayed? && prior.clear_days >= promote_days && prior.level_before == @user.level
+  end
 
   # ---- 希望の根拠 ----
   def this_week = count_between(today - 6, today)

@@ -43,4 +43,30 @@ RSpec.describe HomePresenter do
     expect(described_class.new(user, now: now)).not_to be_tomorrow_card
     expect(described_class.new(user, now: now.change(hour: 20))).to be_tomorrow_card
   end
+
+  describe "#last_week_cleared? (progress toward the 2-week promotion)" do
+    let(:last_week_start) { now.to_date.beginning_of_week - 7 }
+
+    def review(outcome:, clear_days: 3, level_before: 1, level_after: 1)
+      user.weekly_reviews.create!(week_start: last_week_start, clear_days: clear_days, outcome: outcome,
+                                  level_before: level_before, level_after: level_after)
+    end
+
+    it "is true after a cleared week that did not promote" do
+      review(outcome: :stayed)
+      expect(described_class.new(user, now: now).last_week_cleared?).to be true
+    end
+
+    it "is false after the week of a promotion (the new level starts from zero)" do
+      user.change_level!(2)
+      review(outcome: :promoted, level_before: 1, level_after: 2)
+      expect(described_class.new(user, now: now).last_week_cleared?).to be false
+    end
+
+    it "is false when last week had fewer than 3 clear days, or was not reviewed" do
+      expect(described_class.new(user, now: now).last_week_cleared?).to be false
+      review(outcome: :stayed, clear_days: 2)
+      expect(described_class.new(user, now: now).last_week_cleared?).to be false
+    end
+  end
 end

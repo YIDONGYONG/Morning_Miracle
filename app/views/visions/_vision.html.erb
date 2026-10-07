@@ -1,11 +1,10 @@
-<%# ビジョン1件分のカード（一覧・詳細で共用） %>
+<%# ビジョン1件分のカード %>
 <section id="<%= dom_id vision %>" class="card">
-  <h3 class="text-lg font-extrabold text-ink [overflow-wrap:anywhere]"><%= link_to vision.title, vision %></h3>
+  <h3 class="text-lg font-extrabold text-ink [overflow-wrap:anywhere]"><%= vision.title %></h3>
   <p class="mt-2 [overflow-wrap:anywhere] whitespace-pre-wrap text-ink-body"><%= vision.content %></p>
   <% if vision.target_date %><p class="mt-2 text-sm text-ink-muted">達成予定日：<%= vision.target_date.strftime("%Y年%-m月%-d日") %></p><% end %>
 
   <div class="mt-4 flex gap-2">
-    <%= link_to "見る", vision, class: "btn btn-secondary flex-1" %>
     <%= link_to "編集", edit_vision_path(vision), class: "btn btn-secondary flex-1" %>
     <%= link_to "削除", vision_path(vision), class: "btn btn-danger flex-1",
                 data: { turbo_method: :delete, turbo_confirm: "削除してもよろしいですか？" } %>

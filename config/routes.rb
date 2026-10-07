@@ -3,7 +3,7 @@ Rails.application.routes.draw do
   get "up", to: "rails/health#show", as: :rails_health_check
   root "static_pages#top"
   resources :users, only: %i[new create]
-  resources :visions
+  resources :visions, except: :show
   # 「やってみた」の記録(タイマー完了・途中でやめた・ワンタップ完了)。Turbo Stream で画面を更新する
   resources :activity_logs, only: :create
   resources :weekly_reviews, only: [] do

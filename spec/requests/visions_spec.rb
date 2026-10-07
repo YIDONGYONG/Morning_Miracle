@@ -6,12 +6,10 @@ RSpec.describe "Visions", type: :request do
 
   before { post login_path, params: { email: user.email, password: "password1" } }
 
-  it "shows the cover image on index and show" do
-    [ visions_path, vision_path(vision) ].each do |path|
-      get path
-      expect(response).to have_http_status(:ok)
-      expect(response.body).to include("cover").and include("私のビジョン画像")
-    end
+  it "shows the cover image on index" do
+    get visions_path
+    expect(response).to have_http_status(:ok)
+    expect(response.body).to include("cover").and include("私のビジョン画像")
   end
 
   it "still supports deleting" do
@@ -28,9 +26,7 @@ RSpec.describe "Visions", type: :request do
       expect(response.body).not_to include("Others secret")
     end
 
-    it "returns 404 for another user's vision on show and edit" do
-      get vision_path(others_vision)
-      expect(response).to have_http_status(:not_found)
+    it "returns 404 for another user's vision on edit" do
       get edit_vision_path(others_vision)
       expect(response).to have_http_status(:not_found)
     end
@@ -49,7 +45,7 @@ RSpec.describe "Visions", type: :request do
 
   it "creates a vision owned by the current user" do
     expect { post visions_path, params: { vision: { title: "New", content: "x", target_date: 1.year.from_now.to_date.to_s } } }.to change { user.visions.count }.by(1)
-    expect(response).to redirect_to(vision_path(Vision.last))
+    expect(response).to redirect_to(visions_path)
   end
 
   it "shows a readable error when the title is empty" do

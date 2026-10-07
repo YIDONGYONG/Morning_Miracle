@@ -1,13 +1,10 @@
 class VisionsController < ApplicationController
-  before_action :set_vision, only: [ :show, :edit, :update, :destroy ]
+  before_action :set_vision, only: [ :edit, :update, :destroy ]
 
   # 1. 一覧表示
   def index
     @visions = current_user.visions.order(:id)
   end
-
-  # 2. 詳細表示
-  def show; end
 
   # 3. 新規作成フォーム
   def new
@@ -19,7 +16,7 @@ class VisionsController < ApplicationController
     @vision = current_user.visions.build(vision_params)
 
     if @vision.save
-      redirect_to @vision, notice: "ビジョンを登録しました"
+      redirect_to visions_path, notice: "ビジョンを登録しました"
     else
       render :new, status: :unprocessable_entity
     end
@@ -31,7 +28,7 @@ class VisionsController < ApplicationController
   # 4. 更新（DB保存）
   def update
     if @vision.update(vision_params)
-      redirect_to @vision, notice: "ビジョンを更新しました"
+      redirect_to visions_path, notice: "ビジョンを更新しました"
     else
       render :edit, status: :unprocessable_entity
     end

@@ -18,3 +18,6 @@ application.register("timer-badge", TimerBadgeController)
 
 import TimerClearController from "./timer_clear_controller"
 application.register("timer-clear", TimerClearController)
+
+import MenuController from "./menu_controller"
+application.register("menu", MenuController)

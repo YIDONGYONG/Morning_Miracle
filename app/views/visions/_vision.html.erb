@@ -1,12 +1,27 @@
-<%# ビジョン1件分のカード %>
+<%# ビジョン1件分のカード（編集・削除は右上の「⋯」メニューから） %>
 <section id="<%= dom_id vision %>" class="card">
-  <h3 class="text-lg font-extrabold text-ink [overflow-wrap:anywhere]"><%= vision.title %></h3>
+  <div class="flex items-start justify-between gap-2">
+    <h3 class="text-lg font-extrabold text-ink [overflow-wrap:anywhere]"><%= vision.title %></h3>
+
+    <div class="relative shrink-0" data-controller="menu"
+         data-action="click@window->menu#closeOnOutside keydown.esc->menu#closeOnEscape">
+      <button type="button" class="-mr-2 -mt-1 flex h-10 w-10 items-center justify-center rounded-full text-ink-muted transition hover:bg-surface-muted"
+              aria-label="メニューを開く" aria-haspopup="true" aria-expanded="false"
+              data-menu-target="button" data-action="menu#toggle">
+        <svg viewBox="0 0 24 24" class="h-6 w-6" fill="currentColor" aria-hidden="true">
+          <circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/>
+        </svg>
+      </button>
+
+      <div hidden data-menu-target="panel"
+           class="absolute right-0 z-10 mt-1 w-32 overflow-hidden rounded-2xl bg-card py-1 shadow-card ring-1 ring-line">
+        <%= link_to "編集", edit_vision_path(vision), class: "block px-4 py-3 text-sm font-bold text-ink hover:bg-surface-muted" %>
+        <%= link_to "削除", vision_path(vision), class: "block px-4 py-3 text-sm font-bold text-danger hover:bg-surface-muted",
+                    data: { turbo_method: :delete, turbo_confirm: "削除してもよろしいですか？" } %>
+      </div>
+    </div>
+  </div>
+
   <p class="mt-2 [overflow-wrap:anywhere] whitespace-pre-wrap text-ink-body"><%= vision.content %></p>
   <% if vision.target_date %><p class="mt-2 text-sm text-ink-muted">達成予定日：<%= vision.target_date.strftime("%Y年%-m月%-d日") %></p><% end %>
-
-  <div class="mt-4 flex gap-2">
-    <%= link_to "編集", edit_vision_path(vision), class: "btn btn-secondary flex-1" %>
-    <%= link_to "削除", vision_path(vision), class: "btn btn-danger flex-1",
-                data: { turbo_method: :delete, turbo_confirm: "削除してもよろしいですか？" } %>
-  </div>
 </section>

@@ -1,4 +1,4 @@
-# <MiracleMorning>
+# MiracleMorning
 
 # 1. サービス概要
 

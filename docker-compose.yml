@@ -21,7 +21,7 @@ services:
 
   web:
     build: .
-    # 컨테이너만 백그라운드로 켜두어 terminal 2에서 bin/dev 중복 충돌이 안 나도록 수정
+    # コンテナだけをバックグラウンドで起動しておき、terminal 2 の bin/dev と重複して衝突しないようにする
     command: tail -f /dev/null
     tty: true
     stdin_open: true

@@ -18,7 +18,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "jq -r '.tool_input.command // empty' | grep -qE 'rm\\s+-rf|git\\s+push\\s+(-f|--force)|git\\s+reset\\s+--hard|DROP\\s+TABLE' && { echo 'BLOCKED: 위험한 명령어' >&2; exit 2; } || exit 0"
+            "command": "jq -r '.tool_input.command // empty' | grep -qE 'rm\\s+-rf|git\\s+push\\s+(-f|--force)|git\\s+reset\\s+--hard|DROP\\s+TABLE' && { echo 'BLOCKED: 危険なコマンドです' >&2; exit 2; } || exit 0"
           }
         ]
       }

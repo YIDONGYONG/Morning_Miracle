@@ -45,9 +45,9 @@ group :development, :test do
     # Omakase Ruby styling [https://github.com/rails/rubocop-rails-omakase/]
     gem "rubocop-rails-omakase", require: false
 
-    # 추가한 RuboCop 관련 젬들
+    # 追加した RuboCop 関連の gem
     gem "rubocop", require: false
-    # RSpec 추가
+    # RSpec を追加
     gem "rspec-rails"
   end
 
